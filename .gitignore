@@ -1,0 +1,40 @@
+# 敏感配置（绝对不能上传）
+js/secrets.local.js
+*.local.js
+.env
+.env.local
+
+# Mac 系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Cursor
+.cursor/
+.cursorrules.local
+
+# Node（万一以后用得上）
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# 日志
+*.log
+logs/
+
+# 临时文件
+tmp/
+temp/
+
+# 项目档案（个人备忘，不公开）
+项目档案*.txt
+*_项目档案.txt

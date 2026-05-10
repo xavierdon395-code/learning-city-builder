@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学习城市建设者 — 统计</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/dev-panel.css" />
+  </head>
+  <body class="stats-page">
+    <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
+    <header class="top-nav">
+      <a class="top-nav__brand" href="index.html">
+        <span class="logo-pixel" aria-hidden="true"></span>
+        <span class="nav-zodiac" data-zodiac-slot></span>
+        <span class="pixel-title brand-title">学习城市建设者</span>
+      </a>
+      <div class="top-nav__user">
+        <div class="avatar-pixel" id="nav-user-initial">学</div>
+        <div class="nav-user-meta">
+          <span class="nav-user-name" id="nav-user-name">学习者</span>
+        </div>
+        <button type="button" class="btn-nav-out btn btn--danger btn--small" id="nav-logout">退出</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="card">
+        <h2 class="card__title">个人档案</h2>
+        <p class="muted" style="margin-top: 0">完善简介可解锁成就「完善档案」（建议不少于 8 个字）。</p>
+        <div class="form-field">
+          <label for="st-profile-bio">个人简介</label>
+          <textarea id="st-profile-bio" rows="3" placeholder="简单介绍一下你的学习方向与阶段…"></textarea>
+        </div>
+        <button type="button" class="btn btn--primary" id="st-save-bio">保存简介</button>
+      </section>
+
+      <section class="card">
+        <h1 class="card__title">学习统计</h1>
+        <div class="stat-grid" id="st-stat-grid">
+          <div class="stat-box stat-box--icon">
+            <span class="stat-box__ico" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg
+            ></span>
+            <div>
+              总学习天数<br /><strong id="st-total-days">0</strong>
+              <div class="muted" style="margin-top: 4px; font-size: 0.72rem">有打卡的不同日期数</div>
+            </div>
+          </div>
+          <div class="stat-box stat-box--icon">
+            <span class="stat-box__ico" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" /></svg
+            ></span>
+            <div>
+              总完成任务<br /><strong id="st-total-tasks">0</strong>
+            </div>
+          </div>
+          <div class="stat-box stat-box--icon">
+            <span class="stat-box__ico" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"
+                ><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2" /></svg
+            ></span>
+            <div>
+              当前连续打卡<br /><strong id="st-cur-streak">0</strong> 天
+            </div>
+          </div>
+          <div class="stat-box stat-box--icon">
+            <span class="stat-box__ico" aria-hidden="true"
+              ><svg viewBox="0 0 24 24"
+                ><path d="M8 21h8M12 17v4M6 3h12v4a6 6 0 0012 0V5a1 1 0 00-1-1h-3M6 3H3a1 1 0 00-1 1v2a6 6 0 006 6" /></svg
+            ></span>
+            <div>
+              最长连续打卡<br /><strong id="st-long-streak">0</strong> 天
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">成就星图 · 十二星座</h2>
+        <p class="muted" style="margin-top: 0">每解锁 1 项成就点亮 1 颗星，踏遍十二星座，绘制属于你的星辰图谱</p>
+        <div id="st-streak-orbit" class="streak-orbit"></div>
+        <div class="zodiac-pager">
+          <button type="button" class="btn btn--secondary btn--small" id="st-zodiac-prev">上一座</button>
+          <button type="button" class="btn btn--secondary btn--small" id="st-zodiac-next">下一座</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">各目标完成率</h2>
+        <div id="st-goals"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">最近 7 天完成数</h2>
+        <div class="bar-chart" id="st-bar-chart" role="img" aria-label="最近7天柱状图"></div>
+      </section>
+
+      <section class="card">
+        <h2 class="card__title">任务类型占比</h2>
+        <div id="st-type-bar" class="type-stack" aria-label="类型占比"></div>
+        <div class="pie-legend" id="st-type-legend"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <a href="index.html" data-nav="home"><span class="emoji">🏠</span>首页</a>
+      <a href="goals.html" data-nav="goals"><span class="emoji">🎯</span>目标</a>
+      <a href="city.html" data-nav="achievements"><span class="emoji">🏆</span>成就</a>
+      <a href="stats.html" data-nav="stats"><span class="emoji">📊</span>统计</a>
+    </nav>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-data.js"></script>
+    <script src="../js/app-shared.js"></script>
+    <script src="../js/goal-ui.js"></script>
+    <script src="../js/achievements.js"></script>
+    <script src="../js/background.js"></script>
+    <script src="../js/stats.js"></script>
+    <script src="../js/dev-panel.js"></script>
+  </body>
+</html>

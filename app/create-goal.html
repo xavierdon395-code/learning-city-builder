@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学习城市建设者 — 创建目标</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/dev-panel.css" />
+  </head>
+  <body>
+    <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
+    <header class="top-nav">
+      <a class="top-nav__brand" href="index.html">
+        <span class="logo-pixel" aria-hidden="true"></span>
+        <span class="nav-zodiac" data-zodiac-slot></span>
+        <span class="pixel-title brand-title">学习城市建设者</span>
+      </a>
+      <div class="top-nav__user">
+        <div class="avatar-pixel" id="nav-user-initial">学</div>
+        <div class="nav-user-meta">
+          <span class="nav-user-name" id="nav-user-name">学习者</span>
+        </div>
+        <button type="button" class="btn-nav-out btn btn--danger btn--small" id="nav-logout">退出</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="card">
+        <h1 class="card__title">创建学习目标</h1>
+        <p class="muted">
+          填写信息后，AI 会<strong>先出学习大纲、再出首周 7 天详细任务</strong>（共 2 次请求，约十秒内完成）；后续每一天会在你<strong>打卡时自动预生成</strong>下一窗，无需周重排。
+        </p>
+        <p class="muted" style="margin-top: 8px; font-size: 0.78rem">
+          若刚更新过本页脚本，请使用 <strong>Cmd+Shift+R</strong>（Windows 为 Ctrl+Shift+R）强制刷新，避免浏览器缓存旧版 <code>create-goal.js</code>。
+        </p>
+
+        <div class="form-field">
+          <label for="cg-name">目标名称</label>
+          <input id="cg-name" type="text" placeholder="例如：三个月通过 JLPT N2" />
+        </div>
+        <div class="form-section">
+          <label>目标类型</label>
+          <div class="goal-type-grid">
+            <div class="type-card" data-type="language">
+              <div class="type-icon">🌏</div>
+              <div class="type-name">语言学习</div>
+              <div class="type-hint">日语/英语/雅思等</div>
+            </div>
+            <div class="type-card" data-type="programming">
+              <div class="type-icon">💻</div>
+              <div class="type-name">编程技术</div>
+              <div class="type-hint">Python/前端/算法等</div>
+            </div>
+            <div class="type-card" data-type="exam">
+              <div class="type-icon">📚</div>
+              <div class="type-name">应试备考</div>
+              <div class="type-hint">考研/公考/CPA等</div>
+            </div>
+            <div class="type-card" data-type="fitness">
+              <div class="type-icon">💪</div>
+              <div class="type-name">健身运动</div>
+              <div class="type-hint">减脂/增肌/跑步等</div>
+            </div>
+            <div class="type-card" data-type="reading">
+              <div class="type-icon">📖</div>
+              <div class="type-name">阅读积累</div>
+              <div class="type-hint">读书/课程学习</div>
+            </div>
+            <div class="type-card" data-type="creative">
+              <div class="type-icon">🎨</div>
+              <div class="type-name">创作技能</div>
+              <div class="type-hint">写作/绘画/视频等</div>
+            </div>
+            <div class="type-card" data-type="habit">
+              <div class="type-icon">✨</div>
+              <div class="type-name">习惯养成</div>
+              <div class="type-hint">早起/冥想/戒烟等</div>
+            </div>
+            <div class="type-card" data-type="career">
+              <div class="type-icon">🚀</div>
+              <div class="type-name">职业发展</div>
+              <div class="type-hint">升职/副业/涨粉等</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <label>当前基础</label>
+          <div class="level-options">
+            <button type="button" data-level="beginner">零基础</button>
+            <button type="button" data-level="intermediate">有一些基础</button>
+            <button type="button" data-level="advanced">已较熟练</button>
+          </div>
+        </div>
+        <div class="form-section">
+          <label>时间安排</label>
+          <div class="flex-options">
+            <button type="button" data-flex="fixed">每天固定</button>
+            <button type="button" data-flex="flexible">工作日少周末多</button>
+            <button type="button" data-flex="irregular">不太规律</button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="cg-deadline">截止日期</label>
+          <input id="cg-deadline" type="date" />
+        </div>
+        <div class="form-field">
+          <span class="muted" style="display: block; margin-bottom: 8px">每日可用时间</span>
+          <div class="cg-time-mode">
+            <label><input type="radio" name="cg-time-mode" value="uniform" checked /> 模式 A：统一设置</label>
+            <label><input type="radio" name="cg-time-mode" value="weekly" /> 模式 B：分天设置</label>
+          </div>
+          <div id="cg-time-uniform-wrap">
+            <label for="cg-hours">每天相同（0.5–8 小时）</label>
+            <div class="range-row">
+              <input id="cg-hours" type="range" min="0.5" max="8" step="0.5" value="1" />
+              <span id="cg-hours-out" class="muted" style="white-space: nowrap">1 小时</span>
+            </div>
+          </div>
+          <div id="cg-time-weekly-wrap" hidden>
+            <p class="muted" style="margin: 0 0 8px">周一至周日单独设置（0–12 小时）</p>
+            <div class="cg-weekly-grid">
+              <label>周一<input id="cg-wd-0" type="number" min="0" max="12" step="0.5" value="1" /></label>
+              <label>周二<input id="cg-wd-1" type="number" min="0" max="12" step="0.5" value="1" /></label>
+              <label>周三<input id="cg-wd-2" type="number" min="0" max="12" step="0.5" value="1" /></label>
+              <label>周四<input id="cg-wd-3" type="number" min="0" max="12" step="0.5" value="1" /></label>
+              <label>周五<input id="cg-wd-4" type="number" min="0" max="12" step="0.5" value="1" /></label>
+              <label class="cg-wd-weekend">周六<input id="cg-wd-5" type="number" min="0" max="12" step="0.5" value="2" /></label>
+              <label class="cg-wd-weekend">周日<input id="cg-wd-6" type="number" min="0" max="12" step="0.5" value="2" /></label>
+            </div>
+            <p class="cg-weekly-avg" id="cg-weekly-avg">每周平均：— 小时/天</p>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="cg-level">当前水平描述</label>
+          <textarea
+            id="cg-level"
+            placeholder="例如：已掌握五十音，能读简单短文，听力较弱；希望重点突破语法和听力。"
+          ></textarea>
+        </div>
+
+        <button type="button" class="btn btn--ai-cosmos btn-block" id="cg-ai">✦ AI 智能生成计划</button>
+        <p class="muted" style="margin: 8px 0 0; font-size: 0.78rem; line-height: 1.4">
+          ✨ AI 会先生成学习大纲和首周任务（约 10 秒），后续任务在你打卡时自动准备。
+        </p>
+
+        <div class="celestial-loader" id="cg-loader" aria-live="polite">
+          <div class="celestial-orbit" aria-hidden="true"></div>
+          <span class="muted">星轨演算中…</span>
+        </div>
+
+        <div id="cg-plan-wrap" hidden>
+          <h2 class="card__title" style="margin-top: 16px">计划预览</h2>
+          <div id="cg-plan-preview" class="plan-preview"></div>
+          <button type="button" class="btn btn--primary btn-block" id="cg-save" style="margin-top: 12px">
+            确认并保存目标
+          </button>
+        </div>
+
+        <div id="cg-msg" style="display: none"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <a href="index.html" data-nav="home"><span class="emoji">🏠</span>首页</a>
+      <a href="goals.html" data-nav="goals"><span class="emoji">🎯</span>目标</a>
+      <a href="city.html" data-nav="achievements"><span class="emoji">🏆</span>成就</a>
+      <a href="stats.html" data-nav="stats"><span class="emoji">📊</span>统计</a>
+    </nav>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-data.js"></script>
+    <script src="../js/app-shared.js"></script>
+    <script src="../js/secrets.local.js"></script>
+    <script src="../js/rolling-plan.js?v=20260510c"></script>
+    <script src="../js/achievements.js"></script>
+    <script src="../js/background.js"></script>
+    <script src="../js/create-goal.js?v=20260510c"></script>
+    <script src="../js/dev-panel.js"></script>
+  </body>
+</html>

@@ -1,0 +1,193 @@
+/* 开发者测试面板 — 正式上线前移除 */
+
+.dev-panel-hit {
+  position: fixed;
+  right: 0;
+  /* 抬高以避免挡住应用内底部导航（app.css 中 --bottom-nav-h） */
+  bottom: var(--bottom-nav-h, 0px);
+  width: 72px;
+  height: 72px;
+  z-index: 2147483000;
+  background: transparent;
+  cursor: default;
+  touch-action: manipulation;
+}
+
+.dev-panel-fab {
+  position: fixed;
+  right: 12px;
+  bottom: calc(var(--bottom-nav-h, 0px) + 82px);
+  z-index: 2147483000;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 214, 150, 0.45);
+  background: rgba(22, 18, 14, 0.88);
+  color: #ffdfa8;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.dev-panel-fab:hover {
+  background: rgba(40, 31, 22, 0.92);
+}
+
+.dev-panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483640;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.dev-panel-overlay[hidden] {
+  display: none !important;
+}
+
+.dev-panel {
+  position: relative;
+  width: min(420px, 100%);
+  max-height: min(92vh, 720px);
+  overflow: auto;
+  margin-top: 8px;
+  padding: 14px 14px 18px;
+  background: #1a1a1e;
+  color: #f0f0f0;
+  border: 3px solid #444;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.4);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.dev-panel__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid #888;
+  background: #2a2a30;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.dev-panel__close:hover {
+  background: #3a3a44;
+}
+
+.dev-panel__warn {
+  margin: 0 40px 12px 0;
+  padding: 8px;
+  background: rgba(180, 40, 40, 0.25);
+  border: 2px solid #c62828;
+  color: #ff8a80;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dev-panel__section {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #333;
+}
+
+.dev-panel__section:last-of-type {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.dev-panel__title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffd54f;
+  text-transform: none;
+}
+
+.dev-panel__stat {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #b0bec5;
+}
+
+.dev-panel__stat strong {
+  color: #fff;
+}
+
+.dev-panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.dev-panel__input {
+  width: 72px;
+  padding: 6px 8px;
+  border: 2px solid #555;
+  background: #111;
+  color: #fff;
+  font-size: 14px;
+  border-radius: 0;
+}
+
+.dev-panel__select {
+  flex: 1;
+  min-width: 160px;
+  padding: 6px 8px;
+  border: 2px solid #555;
+  background: #111;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 0;
+}
+
+.dev-panel .dev-btn {
+  padding: 6px 10px;
+  border: 2px solid #666;
+  background: #333;
+  color: #eee;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 0;
+  margin: 0;
+}
+
+.dev-panel .dev-btn:hover {
+  background: #444;
+}
+
+.dev-panel .dev-btn--danger {
+  border-color: #c62828;
+  background: #5c1a1a;
+  color: #ffcdd2;
+}
+
+.dev-panel .dev-btn--danger:hover {
+  background: #7a2222;
+}
+
+.dev-panel .dev-btn--primary {
+  border-color: #558b2f;
+  background: #33691e;
+  color: #fff;
+}
+
+.dev-panel .dev-btn--primary:hover {
+  background: #558b2f;
+}
