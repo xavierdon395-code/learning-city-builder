@@ -777,6 +777,288 @@
     }, 200);
   }
 
+  var weeklyListenersBound = false;
+  /** 当前自然周范围，供周复盘 meta 与 render 共用 */
+  var weeklyReportRangeCache = null;
+
+  function padWeeklyMeta2(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  /** Firebase RTDB 读出的 updatedAt：毫秒时间戳 */
+  function weeklyMetaTimestampMs(ts) {
+    if (ts == null) return NaN;
+    if (typeof ts === "number" && isFinite(ts)) return ts;
+    if (typeof ts === "object" && ts && typeof ts.toMillis === "function") return ts.toMillis();
+    return NaN;
+  }
+
+  function formatWeeklyUpdatedHm(ms) {
+    var d = new Date(ms);
+    return (
+      d.getFullYear() +
+      "-" +
+      padWeeklyMeta2(d.getMonth() + 1) +
+      "-" +
+      padWeeklyMeta2(d.getDate()) +
+      " " +
+      padWeeklyMeta2(d.getHours()) +
+      ":" +
+      padWeeklyMeta2(d.getMinutes())
+    );
+  }
+
+  function buildWeeklyMetaLine(range, doc) {
+    if (!range || !range.weekId) return "—";
+    var ws = AppData.formatYMD(range.start);
+    var we = AppData.formatYMD(range.end);
+    var line = "本周 " + range.weekId + "（" + ws + " ~ " + we + "）";
+    if (doc && doc.updatedAt != null) {
+      var ms = weeklyMetaTimestampMs(doc.updatedAt);
+      if (isFinite(ms)) {
+        line += " · 上次更新：" + formatWeeklyUpdatedHm(ms);
+      }
+    }
+    return line;
+  }
+
+  function applyWeeklyMetaLine(doc) {
+    var metaEl = document.getElementById("st-weekly-meta");
+    if (!metaEl || !weeklyReportRangeCache) return;
+    metaEl.textContent = buildWeeklyMetaLine(weeklyReportRangeCache, doc || null);
+  }
+
+  /** 生成失败时避免重复叠提示语 */
+  function appendWeeklyGenErrorHint(msg) {
+    var m = String(msg || "").trim();
+    if (!m) return "生成失败。可稍后再试或点击「重新生成」。";
+    if (/重新生成|未配置 DeepSeek/.test(m)) return m;
+    return m + " 可稍后再试或点击「重新生成」。";
+  }
+
+  function renderWeeklyHistory() {
+    if (window.WeeklyReportModal && typeof WeeklyReportModal.renderHistory === "function") {
+      return WeeklyReportModal.renderHistory("wr-history-section");
+    }
+    return Promise.resolve();
+  }
+
+  function clearWeeklyError() {
+    var el = document.getElementById("st-weekly-error");
+    if (el) {
+      el.hidden = true;
+      el.textContent = "";
+    }
+  }
+
+  function setWeeklyError(msg) {
+    var el = document.getElementById("st-weekly-error");
+    if (!el) return;
+    el.textContent = msg || "出错了";
+    el.hidden = false;
+  }
+
+  function setWeeklyLoading(on) {
+    var sec = document.getElementById("st-weekly-report");
+    var load = document.getElementById("st-weekly-loading");
+    var gen = document.getElementById("st-weekly-generate");
+    var reg = document.getElementById("st-weekly-regenerate");
+    if (sec) sec.setAttribute("aria-busy", on ? "true" : "false");
+    if (load) load.hidden = !on;
+    if (on) {
+      if (gen) gen.disabled = true;
+      if (reg) reg.disabled = true;
+    } else {
+      var hasCache = gen && gen.dataset.hasCache === "1";
+      if (gen) gen.disabled = !!hasCache;
+      if (reg) reg.disabled = !hasCache;
+    }
+  }
+
+  function syncWeeklyButtons(hasCache) {
+    var gen = document.getElementById("st-weekly-generate");
+    var reg = document.getElementById("st-weekly-regenerate");
+    if (gen) {
+      gen.dataset.hasCache = hasCache ? "1" : "0";
+      gen.disabled = !!hasCache;
+    }
+    if (reg) {
+      reg.dataset.hasCache = hasCache ? "1" : "0";
+      reg.disabled = !hasCache;
+    }
+  }
+
+  function appendListSection(host, title, items) {
+    var sub = document.createElement("p");
+    sub.className = "muted weekly-report__label";
+    sub.textContent = title;
+    host.appendChild(sub);
+    var ul = document.createElement("ul");
+    ul.className = "weekly-report__list";
+    for (var i = 0; i < items.length; i++) {
+      var li = document.createElement("li");
+      li.textContent = items[i];
+      ul.appendChild(li);
+    }
+    host.appendChild(ul);
+  }
+
+  function renderWeeklyDoc(doc) {
+    var body = document.getElementById("st-weekly-body");
+    if (!body) return;
+    body.innerHTML = "";
+    clearWeeklyError();
+
+    if (doc && doc.ai) {
+      try {
+        if (typeof WeeklyReportAI !== "undefined" && WeeklyReportAI.validateAi) {
+          WeeklyReportAI.validateAi(doc.ai);
+        }
+      } catch (ve) {
+        console.error(ve);
+        setWeeklyError("本地保存的复盘数据不完整或已过期，请点击「重新生成」恢复。");
+        var broken = document.createElement("p");
+        broken.className = "muted";
+        broken.textContent = "无法展示缓存内容时，请使用「重新生成」拉取新的复盘。";
+        body.appendChild(broken);
+        syncWeeklyButtons(false);
+        applyWeeklyMetaLine(null);
+        return;
+      }
+    }
+
+    if (!doc || !doc.ai) {
+      if (doc && !doc.ai) {
+        setWeeklyError("本地保存的复盘数据不完整，请点击「重新生成」恢复。");
+        var bad = document.createElement("p");
+        bad.className = "muted";
+        bad.textContent = "无法读取有效的复盘正文，请使用「重新生成」。";
+        body.appendChild(bad);
+      } else {
+        var empty = document.createElement("p");
+        empty.className = "muted";
+        empty.textContent = "本周尚未生成复盘，点击下方按钮生成。";
+        body.appendChild(empty);
+      }
+      syncWeeklyButtons(false);
+      applyWeeklyMetaLine(doc || null);
+      return;
+    }
+    var ai = doc.ai;
+    var snap = doc.stats_snapshot;
+    if (snap && Number(snap.tasks_planned || 0) === 0) {
+      var emptyWeek = document.createElement("p");
+      emptyWeek.className = "muted";
+      emptyWeek.style.marginBottom = "12px";
+      emptyWeek.textContent = "本周尚无排期任务，以下为模型根据当前数据的简要参考。";
+      body.appendChild(emptyWeek);
+    }
+    var headline = document.createElement("p");
+    headline.className = "weekly-report__headline";
+    headline.textContent = ai.headline || "";
+    body.appendChild(headline);
+
+    if (ai.highlights && ai.highlights.length) {
+      appendListSection(body, "亮点", ai.highlights);
+    }
+    if (ai.watchouts && ai.watchouts.length) {
+      appendListSection(body, "注意", ai.watchouts);
+    }
+    if (ai.next_week_focus && ai.next_week_focus.length) {
+      appendListSection(body, "下周重点", ai.next_week_focus);
+    }
+    var rule = document.createElement("div");
+    rule.className = "weekly-report__rule";
+    body.appendChild(rule);
+    var tone = document.createElement("p");
+    tone.className = "weekly-report__tone muted";
+    tone.textContent = ai.tone_note || "";
+    body.appendChild(tone);
+    syncWeeklyButtons(true);
+    applyWeeklyMetaLine(doc);
+  }
+
+  function initWeeklyReport(uid) {
+    if (typeof WeeklyReportData === "undefined" || typeof AppData === "undefined") {
+      var m = document.getElementById("st-weekly-meta");
+      if (m) m.textContent = "周复盘依赖未加载";
+      return;
+    }
+    var metaEl = document.getElementById("st-weekly-meta");
+    var range = WeeklyReportData.getWeekRange(new Date());
+    weeklyReportRangeCache = range;
+    if (metaEl) {
+      metaEl.textContent = buildWeeklyMetaLine(range, null);
+    }
+    AppData.loadWeeklyReport(uid, range.weekId)
+      .then(function (doc) {
+        if (doc) {
+          renderWeeklyDoc(doc);
+        } else {
+          var body = document.getElementById("st-weekly-body");
+          if (body) body.innerHTML = "";
+          var empty = document.createElement("p");
+          empty.className = "muted";
+          empty.textContent = "本周尚未生成复盘，点击下方按钮生成。";
+          if (body) body.appendChild(empty);
+          syncWeeklyButtons(false);
+          applyWeeklyMetaLine(null);
+        }
+      })
+      .catch(function (e) {
+        console.error(e);
+        setWeeklyError(appendWeeklyGenErrorHint(e.message || "加载周复盘失败"));
+      });
+  }
+
+  function bindWeeklyReportListeners() {
+    if (weeklyListenersBound) return;
+    weeklyListenersBound = true;
+    var gen = document.getElementById("st-weekly-generate");
+    var reg = document.getElementById("st-weekly-regenerate");
+    if (gen) {
+      gen.addEventListener("click", function () {
+        var u = firebase.auth().currentUser;
+        if (!u || typeof WeeklyReportAI === "undefined") return;
+        clearWeeklyError();
+        setWeeklyLoading(true);
+        WeeklyReportAI.generate(u.uid, { force: false })
+          .then(function (res) {
+            renderWeeklyDoc(res.doc);
+            return renderWeeklyHistory();
+          })
+          .catch(function (e) {
+            console.error(e);
+            setWeeklyError(appendWeeklyGenErrorHint(e.message || "生成失败"));
+          })
+          .then(function () {
+            setWeeklyLoading(false);
+          });
+      });
+    }
+    if (reg) {
+      reg.addEventListener("click", function () {
+        if (!confirm("将重新请求 AI 并覆盖本周已保存的复盘，确定？")) return;
+        var u = firebase.auth().currentUser;
+        if (!u || typeof WeeklyReportAI === "undefined") return;
+        clearWeeklyError();
+        setWeeklyLoading(true);
+        WeeklyReportAI.generate(u.uid, { force: true })
+          .then(function (res) {
+            renderWeeklyDoc(res.doc);
+            return renderWeeklyHistory();
+          })
+          .catch(function (e) {
+            console.error(e);
+            setWeeklyError(appendWeeklyGenErrorHint(e.message || "重新生成失败"));
+          })
+          .then(function () {
+            setWeeklyLoading(false);
+          });
+      });
+    }
+  }
+
   function refresh(user) {
     var uid = user.uid;
     Promise.all([AppData.loadProfile(uid), AppData.loadAllTasks(uid), AppData.loadGoals(uid), AppData.loadLeaves(uid), loadUnlockedCount(uid)]).then(function (res) {
@@ -834,6 +1116,9 @@
         );
         io.observe(gridObs);
       }
+
+      initWeeklyReport(uid);
+      renderWeeklyHistory();
     });
   }
 
@@ -856,6 +1141,7 @@
         });
       }
       refresh(user);
+      bindWeeklyReportListeners();
 
       var saveBio = document.getElementById("st-save-bio");
       if (saveBio) {

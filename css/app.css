@@ -202,3 +202,72 @@
   line-height: 1.4;
   margin: 0;
 }
+
+/* AI 周复盘（统计页） */
+.card--weekly-report .weekly-report__meta {
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.weekly-report__loading {
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+}
+
+.weekly-report__error {
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.weekly-report__body {
+  margin-bottom: 14px;
+}
+
+.weekly-report__headline {
+  color: var(--text-primary);
+  font-size: 1.05rem;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0 0 14px;
+}
+
+.weekly-report__label {
+  margin: 12px 0 6px;
+  font-size: 0.78rem;
+}
+
+.weekly-report__list {
+  margin: 0 0 4px;
+  padding-left: 1.15rem;
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.weekly-report__list li {
+  margin-bottom: 4px;
+}
+
+.weekly-report__rule {
+  height: 0;
+  margin: 14px 0 12px;
+  border-top: 0.5px solid var(--border);
+}
+
+.weekly-report__tone {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.weekly-report__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 4px;
+}

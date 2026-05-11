@@ -169,6 +169,10 @@
       AppShared.setBottomNavActive("home");
       AppShared.pageEnterTransition();
       refresh(user);
+      // 周一首次打开自动弹出本周复盘（静默，不阻塞首页渲染）
+      if (window.WeeklyReportModal) {
+        WeeklyReportModal.autoShowOnMonday();
+      }
 
       document.getElementById("btn-today-study").addEventListener("click", function () {
         window.location.href = "tasks.html";

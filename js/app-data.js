@@ -500,6 +500,55 @@
     });
   }
 
+  /** AI 周复盘缓存：读取某周已存文档（不存在则 null） */
+  function loadWeeklyReport(uid, weekId) {
+    const { db } = initFirebase();
+    const path = userRoot(uid) + "/weeklyReports/" + weekId;
+    return db
+      .ref(path)
+      .once("value")
+      .then(function (snap) {
+        return snap.exists() ? snap.val() : null;
+      });
+  }
+
+  /** 读取全部周复盘（按 week_id 倒序，最新在前） */
+  function loadAllWeeklyReports(uid) {
+    const { db } = initFirebase();
+    const path = userRoot(uid) + "/weeklyReports";
+    return db
+      .ref(path)
+      .once("value")
+      .then(function (snap) {
+        if (!snap.exists()) return [];
+        const all = [];
+        snap.forEach(function (child) {
+          all.push(child.val() || {});
+        });
+        return all.sort(function (a, b) {
+          return String((b && b.week_id) || "").localeCompare(String((a && a.week_id) || ""));
+        });
+      });
+  }
+
+  /**
+   * 写入周复盘文档（整节点 set）
+   * payload 须含 week_id、stats_snapshot、ai、updatedAt 等；写入前 console.log 旧值
+   */
+  function saveWeeklyReport(uid, weekId, payload) {
+    const { db } = initFirebase();
+    const path = userRoot(uid) + "/weeklyReports/" + weekId;
+    return db
+      .ref(path)
+      .once("value")
+      .then(function (snap) {
+        const before = snap.val();
+        console.log("[AppData.saveWeeklyReport] 写入前:", before);
+        console.log("[AppData.saveWeeklyReport] 即将写入:", payload);
+        return db.ref(path).set(payload);
+      });
+  }
+
   /** 根据当前任务树重写 stats（不修改目标进度，供批量调试等场景使用） */
   function syncStatsFromTasks(uid) {
     const { db } = initFirebase();
@@ -546,6 +595,9 @@
     updateTaskFields: updateTaskFields,
     setTaskCompleted: setTaskCompleted,
     syncStatsFromTasks: syncStatsFromTasks,
+    loadWeeklyReport: loadWeeklyReport,
+    loadAllWeeklyReports: loadAllWeeklyReports,
+    saveWeeklyReport: saveWeeklyReport,
     userRoot: userRoot,
   };
 })(typeof window !== "undefined" ? window : this);

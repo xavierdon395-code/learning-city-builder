@@ -12,6 +12,7 @@
     />
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/app.css" />
+    <link rel="stylesheet" href="../css/weekly-report-modal.css" />
     <link rel="stylesheet" href="../css/dev-panel.css" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   </head>
@@ -87,6 +88,21 @@
         </div>
       </section>
 
+      <section class="card card--weekly-report" id="st-weekly-report" aria-busy="false">
+        <h2 class="card__title">AI 周复盘</h2>
+        <p class="muted weekly-report__meta" id="st-weekly-meta">—</p>
+        <div id="st-weekly-loading" class="weekly-report__loading muted" hidden>正在生成，请稍候…</div>
+        <div id="st-weekly-error" class="weekly-report__error" role="alert" hidden></div>
+        <div id="st-weekly-body" class="weekly-report__body"></div>
+        <div class="weekly-report__actions">
+          <button type="button" class="btn btn--secondary btn--small" id="st-weekly-generate">生成本周复盘</button>
+          <button type="button" class="btn btn--secondary btn--small" id="st-weekly-regenerate" disabled>
+            重新生成
+          </button>
+        </div>
+      </section>
+      <section id="wr-history-section" class="wr-history"></section>
+
       <section class="card">
         <h2 class="card__title">成就星图 · 十二星座</h2>
         <p class="muted" style="margin-top: 0">每解锁 1 项成就点亮 1 颗星，踏遍十二星座，绘制属于你的星辰图谱</p>
@@ -126,6 +142,11 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="../js/firebase-config.js"></script>
     <script src="../js/app-data.js"></script>
+    <script src="../js/weekly-report-data.js"></script>
+    <script src="../js/secrets.local.js"></script>
+    <script src="../js/rolling-plan.js"></script>
+    <script src="../js/weekly-report-ai.js"></script>
+    <script src="../js/weekly-report-modal.js"></script>
     <script src="../js/app-shared.js"></script>
     <script src="../js/goal-ui.js"></script>
     <script src="../js/achievements.js"></script>
