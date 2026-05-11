@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="../css/weekly-report-modal.css" />
     <link rel="stylesheet" href="../css/dev-panel.css" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../js/pdf-export.js"></script>
   </head>
   <body class="stats-page app-body--nav-56">
     <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
@@ -48,7 +50,10 @@
       </section>
 
       <section class="card">
-        <h1 class="card__title">学习统计</h1>
+        <div class="stats-card-head">
+          <h1 class="card__title">学习统计</h1>
+          <button type="button" id="btn-export-pdf" class="pdf-export-btn">导出 PDF</button>
+        </div>
         <div class="stat-grid" id="st-stat-grid">
           <div class="stat-box stat-box--icon">
             <span class="stat-box__ico" aria-hidden="true"

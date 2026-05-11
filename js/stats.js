@@ -1122,6 +1122,43 @@
     });
   }
 
+  function bindPdfExportButton(user) {
+    var btnExport = document.getElementById("btn-export-pdf");
+    if (!btnExport || !window.PDFExport) return;
+    btnExport.addEventListener("click", function () {
+      btnExport.disabled = true;
+      btnExport.textContent = "生成中...";
+      AppData.loadProfile(user.uid)
+        .catch(function () {
+          return null;
+        })
+        .then(function (profile) {
+          var userName = "LEARNER";
+          if (profile && profile.englishName && String(profile.englishName).trim()) {
+            userName = String(profile.englishName).trim();
+          } else if (
+            profile &&
+            profile.nickname &&
+            /^[A-Za-z0-9_\s]+$/.test(String(profile.nickname).trim())
+          ) {
+            userName = String(profile.nickname).trim();
+          }
+          return PDFExport.exportPDF({
+            uid: user.uid,
+            userName: String(userName).trim().toUpperCase(),
+          });
+        })
+        .catch(function (err) {
+          console.error("PDF 导出失败", err);
+          alert("PDF 导出失败，请重试");
+        })
+        .then(function () {
+          btnExport.disabled = false;
+          btnExport.textContent = "导出 PDF";
+        });
+    });
+  }
+
   function init() {
     AppShared.attachGlobalClickSound();
     AppShared.requireAuth(function (user) {
@@ -1142,6 +1179,7 @@
       }
       refresh(user);
       bindWeeklyReportListeners();
+      bindPdfExportButton(user);
 
       var saveBio = document.getElementById("st-save-bio");
       if (saveBio) {

@@ -271,3 +271,41 @@
   gap: 10px;
   padding-top: 4px;
 }
+
+/* === 统计页 · 学习统计标题行 + 导出 PDF === */
+.stats-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+
+.stats-card-head .card__title {
+  margin-bottom: 0;
+}
+
+.pdf-export-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: background 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pdf-export-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.pdf-export-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
