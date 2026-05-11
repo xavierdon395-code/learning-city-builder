@@ -2415,6 +2415,8 @@ body.login-page {
   --accent-hover: #d4b563;
   --accent-bg: rgba(201, 168, 76, 0.1);
   --accent-border: rgba(201, 168, 76, 0.3);
+  --danger-red: #e24b4a;
+  --danger-red-soft: rgba(226, 75, 74, 0.08);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --duration-fast: 150ms;

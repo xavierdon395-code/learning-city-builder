@@ -32,72 +32,137 @@
     "💫 特殊成就": "收藏与终极荣耀",
   };
 
-  function hashCode(str) {
-    var h = 2166136261;
-    var s = String(str || "");
-    for (var i = 0; i < s.length; i++) {
-      h ^= s.charCodeAt(i);
-      h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
-    }
-    return (h >>> 0) || 1;
+  var ACHIEVEMENT_ICON_MAP = {
+    newbie_star_path: "rocket",
+    newbie_first_task: "circle-check",
+    newbie_streak_3: "calendar-check",
+    newbie_goal_done: "flag",
+    newbie_profile: "user-round-check",
+    streak_7: "flame",
+    streak_14: "swords",
+    streak_30: "moon-star",
+    streak_100: "zap",
+    streak_180: "crown",
+    streak_365: "trophy",
+    streak_phoenix: "flame-kindling",
+    streak_total_200: "shield-check",
+    task_10: "footprints",
+    task_50: "target",
+    task_100: "book-open-check",
+    task_200: "medal",
+    task_500: "award",
+    task_1000: "gem",
+    task_day_10: "sparkles",
+    task_5days_5: "swords",
+    month_1: "party-popper",
+    month_2: "snowflake",
+    month_3: "wind",
+    month_4: "flower-2",
+    month_5: "sprout",
+    month_6: "sun",
+    month_7: "waves",
+    month_8: "wheat",
+    month_9: "leaf",
+    month_10: "mountain",
+    month_11: "cloud-snow",
+    month_12: "gift",
+    pro_lang_3: "languages",
+    pro_code_3: "code-2",
+    pro_exam_3: "file-pen",
+    pro_skill_3: "palette",
+    pro_four: "graduation-cap",
+    pro_same_5: "microscope",
+    time_morning_10: "sunrise",
+    time_night_10: "moon",
+    time_weekend_50: "coffee",
+    time_anniv_365: "cake",
+    time_early_done: "zap",
+    year_tasks_300: "calendar-heart",
+    year_checkin_300: "calendar-days",
+    year_goals_10: "star",
+    spec_collector_20: "library",
+    spec_collector_40: "crown",
+    spec_all_50: "telescope",
+  };
+
+  function toPascalCase(iconName) {
+    return String(iconName || "")
+      .split("-")
+      .map(function (w) {
+        return w ? w.charAt(0).toUpperCase() + w.slice(1) : "";
+      })
+      .join("");
   }
 
-  function achievementGlyphSvg(def, isOn) {
-    var id = def && def.id ? def.id : "ach";
-    var h = hashCode(id);
-    var cls = isOn ? "ach-glyph ach-glyph--on" : "ach-glyph ach-glyph--off";
-    var a = 6 + (h % 6);
-    var b = 9 + ((h >> 3) % 6);
-    var c = 12 + ((h >> 6) % 6);
-    var d = 14 + ((h >> 9) % 6);
-    var motif =
-      '<path d="M4 ' +
-      a +
-      "L8 " +
-      b +
-      "L12 " +
-      c +
-      "L16 " +
-      d +
-      'L20 ' +
-      (8 + ((h >> 12) % 7)) +
-      '" />' +
-      '<circle cx="4" cy="' +
-      a +
-      '" r="1.1" />' +
-      '<circle cx="8" cy="' +
-      b +
-      '" r="1" />' +
-      '<circle cx="12" cy="' +
-      c +
-      '" r="1.2" />' +
-      '<circle cx="16" cy="' +
-      d +
-      '" r="1" />' +
-      '<circle cx="20" cy="' +
-      (8 + ((h >> 12) % 7)) +
-      '" r="1.15" />';
-    var ringType = h % 4;
-    var ring = "";
-    if (ringType === 0) ring = '<circle cx="12" cy="12" r="8.4" />';
-    else if (ringType === 1) ring = '<rect x="4.5" y="4.5" width="15" height="15" rx="4.2" />';
-    else if (ringType === 2) ring = '<path d="M12 3.5a8.5 8.5 0 1 0 0 17a8.5 8.5 0 1 0 0-17Z" />';
-    else ring = '<path d="M12 3.5L20.5 12L12 20.5L3.5 12Z" />';
-    var accentType = (h >> 16) % 3;
-    var accent = accentType === 0 ? '<path d="M12 6v12M6 12h12" />' : accentType === 1 ? '<path d="M7 7l10 10M17 7L7 17" />' : '<path d="M12 5l2.2 4.2L19 10l-3.5 3.2L16.2 18L12 15.8L7.8 18l.7-4.8L5 10l4.8-.8Z" />';
-    return '<svg class="' + cls + '" viewBox="0 0 24 24" aria-hidden="true">' + ring + motif + accent + "</svg>";
+  function toKebabCase(iconKey) {
+    return String(iconKey || "")
+      .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+      .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
+      .toLowerCase();
+  }
+
+  function findLucideIcon(iconName) {
+    if (typeof lucide === "undefined" || !lucide.icons || !iconName) return null;
+    var pascal = toPascalCase(iconName);
+    if (lucide.icons[pascal]) return lucide.icons[pascal];
+
+    var keys = Object.keys(lucide.icons);
+    for (var i = 0; i < keys.length; i++) {
+      if (toKebabCase(keys[i]) === iconName) {
+        return lucide.icons[keys[i]];
+      }
+    }
+    return null;
+  }
+
+  function lucideIconSvg(iconName) {
+    var Icon = findLucideIcon(iconName);
+    if (!Icon || typeof Icon.toSvg !== "function") return "";
+    return Icon.toSvg({ "stroke-width": 1.5 });
+  }
+
+  function renderAchievementIcon(achievement) {
+    var svg = achievement && achievement.icon ? lucideIconSvg(achievement.icon) : "";
+    if (svg) return svg;
+    var fallback = (achievement && achievement.emoji) || "🏆";
+    return '<span style="font-size:24px;">' + fallback + "</span>";
+  }
+
+  function waitForLucide(callback, retries) {
+    var left = typeof retries === "number" ? retries : 10;
+    if (typeof lucide !== "undefined" && lucide.icons) {
+      callback();
+      return;
+    }
+    if (left > 0) {
+      setTimeout(function () {
+        waitForLucide(callback, left - 1);
+      }, 100);
+      return;
+    }
+    console.warn("Lucide failed to load, using emoji fallback");
+    callback();
   }
 
   function def(
     id,
     series,
-    icon,
+    emoji,
     name,
     desc,
     check,
     progress
   ) {
-    return { id: id, series: series, icon: icon, name: name, desc: desc, check: check, progress: progress };
+    return {
+      id: id,
+      series: series,
+      icon: ACHIEVEMENT_ICON_MAP[id] || "",
+      emoji: emoji,
+      name: name,
+      desc: desc,
+      check: check,
+      progress: progress,
+    };
   }
 
   var ACHIEVEMENTS = [
@@ -922,7 +987,7 @@
       .join(" · ");
     if (titleEl) titleEl.textContent = names;
     if (subEl) subEl.textContent = badgeDefs.length > 1 ? "恭喜解锁 " + badgeDefs.length + " 个徽章！" : "解锁条件：" + (first.desc || "");
-    if (iconEl) iconEl.innerHTML = achievementGlyphSvg(first, true);
+    if (iconEl) iconEl.innerHTML = renderAchievementIcon(first);
 
     ov.classList.add("is-on");
     ov.setAttribute("aria-hidden", "false");
@@ -998,7 +1063,7 @@
         a.href = "city.html";
         a.innerHTML =
           '<span class="ach-home-chip__ico"></span><div><div class="ach-home-chip__name"></div><div class="ach-home-chip__meta muted">已解锁 · 查看成就墙</div></div>';
-        a.querySelector(".ach-home-chip__ico").innerHTML = achievementGlyphSvg(d, true);
+        a.querySelector(".ach-home-chip__ico").innerHTML = renderAchievementIcon(d);
         a.querySelector(".ach-home-chip__name").textContent = d.name;
         container.appendChild(a);
       });
@@ -1085,7 +1150,7 @@
           }
           var ico = document.createElement("div");
           ico.className = "ach-card__icon";
-          ico.innerHTML = achievementGlyphSvg(def, isOn);
+          ico.innerHTML = renderAchievementIcon(def);
           var body = document.createElement("div");
           body.className = "ach-card__body";
           var nm = document.createElement("div");
@@ -1122,12 +1187,20 @@
     });
   }
 
+  function renderWallWhenIconReady(uid) {
+    return new Promise(function (resolve) {
+      waitForLucide(function () {
+        Promise.resolve(renderWall(uid)).then(resolve, resolve);
+      });
+    });
+  }
+
   function initWallPage(uid) {
     var rootId = "ach-celebrate";
     AppData.loadProfile(uid)
       .then(function (profile) {
         if (profile && profile.devPauseAchCheck) {
-          return renderWall(uid).then(function () {
+          return renderWallWhenIconReady(uid).then(function () {
             var recent = document.getElementById("ach-stat-recent");
             if (recent) recent.textContent = "最近：开发者模式已暂停自动检测（请在 DEV 面板手动重检）";
           });
@@ -1143,7 +1216,7 @@
             return flushUnnotifiedCelebrations(uid, rootId);
           })
           .then(function () {
-            return renderWall(uid);
+            return renderWallWhenIconReady(uid);
           });
       })
       .catch(function (e) {

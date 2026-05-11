@@ -11,25 +11,28 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/app.css" />
     <link rel="stylesheet" href="../css/dev-panel.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   </head>
   <body class="app-body app-body--nav-56">
     <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
-    <header class="top-nav top-nav--home-minimal">
-      <div class="top-nav__brand-minimal">
-        <div class="top-nav__logo-icon" aria-hidden="true"><span class="top-nav__logo-dot"></span></div>
-        <span class="top-nav__brand-text">Polaris</span>
-      </div>
-      <div class="top-nav__right-minimal">
-        <div class="top-nav__zodiac-pill">
-          <span class="top-nav__zodiac-dot"></span>
-          <span class="top-nav__zodiac-label" id="nav-zodiac-month">—月</span>
+    <header class="app-top-bar">
+      <div class="app-top-bar__left">
+        <div class="app-top-bar__logo">
+          <div class="app-top-bar__logo-dot"></div>
         </div>
-        <button type="button" class="top-nav__avatar-btn" id="nav-user-initial" onclick="" aria-label="用户菜单">
-          学
-        </button>
+        <span class="app-top-bar__brand">Lumi</span>
       </div>
-      <span id="nav-user-name" class="visually-hidden"></span>
+      <div class="app-top-bar__right">
+        <div class="app-top-bar__moon-pill">
+          <div class="app-top-bar__moon-dot"></div>
+          <span id="topbar-zodiac">金牛月</span>
+        </div>
+        <div class="app-top-bar__avatar" id="topbar-avatar" onclick="logout()" title="点击退出">
+          <span id="topbar-avatar-initial">U</span>
+        </div>
+      </div>
     </header>
 
     <main class="app-main">

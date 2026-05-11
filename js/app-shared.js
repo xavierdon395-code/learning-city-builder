@@ -75,21 +75,76 @@
         window.location.href = "../index.html";
         return;
       }
+      initTopBar(user);
       onUser(user);
     });
+  }
+
+  function currentZodiacMonthLabel(dateObj) {
+    var month = dateObj.getMonth() + 1;
+    var day = dateObj.getDate();
+    var zodiacs = [
+      [1, 20, "摩羯月"],
+      [2, 19, "水瓶月"],
+      [3, 21, "双鱼月"],
+      [4, 20, "白羊月"],
+      [5, 21, "金牛月"],
+      [6, 22, "双子月"],
+      [7, 23, "巨蟹月"],
+      [8, 23, "狮子月"],
+      [9, 23, "处女月"],
+      [10, 24, "天秤月"],
+      [11, 23, "天蝎月"],
+      [12, 22, "射手月"],
+      [12, 31, "摩羯月"],
+    ];
+    var current = "金牛月";
+    for (var i = 0; i < zodiacs.length; i++) {
+      var item = zodiacs[i];
+      if (month < item[0] || (month === item[0] && day <= item[1])) {
+        current = item[2];
+        break;
+      }
+    }
+    return current;
+  }
+
+  function initTopBar(userOverride) {
+    var user = userOverride || firebase.auth().currentUser;
+    var initialEl = document.getElementById("topbar-avatar-initial");
+    if (initialEl) {
+      var initial = "U";
+      if (user) {
+        if (user.displayName) {
+          initial = user.displayName.slice(0, 1).toUpperCase();
+        } else if (user.email) {
+          initial = user.email.slice(0, 2).toUpperCase();
+        } else if (user.phoneNumber) {
+          initial = user.phoneNumber.slice(-2);
+        }
+      }
+      initialEl.textContent = initial;
+    }
+
+    var zodiacEl = document.getElementById("topbar-zodiac");
+    if (zodiacEl) {
+      zodiacEl.textContent = currentZodiacMonthLabel(new Date());
+    }
+  }
+
+  function logout() {
+    firebase
+      .auth()
+      .signOut()
+      .then(function () {
+        window.location.href = "../index.html";
+      });
   }
 
   function setupLogout(btnId) {
     const btn = document.getElementById(btnId || "nav-logout");
     if (!btn) return;
-    btn.addEventListener("click", function () {
-      firebase
-        .auth()
-        .signOut()
-        .then(function () {
-          window.location.href = "../index.html";
-        });
-    });
+    btn.addEventListener("click", logout);
   }
 
   function hydrateUserChip(user, profile) {
@@ -158,11 +213,18 @@
     formatTodayChinese: formatTodayChinese,
     initialFromName: initialFromName,
     requireAuth: requireAuth,
+    initTopBar: initTopBar,
     setupLogout: setupLogout,
     hydrateUserChip: hydrateUserChip,
     setBottomNavActive: setBottomNavActive,
     pageEnterTransition: pageEnterTransition,
   };
+
+  window.logout = logout;
+
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (user) initTopBar(user);
+  });
 
   document.documentElement.classList.add("js-ready");
 })();
