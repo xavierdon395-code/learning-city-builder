@@ -222,9 +222,14 @@
 
   window.logout = logout;
 
-  firebase.auth().onAuthStateChanged(function (user) {
-    if (user) initTopBar(user);
-  });
+  try {
+    var sharedAuth = initFirebase().auth;
+    sharedAuth.onAuthStateChanged(function (user) {
+      if (user) initTopBar(user);
+    });
+  } catch (e) {
+    console.error("Top bar auth init failed:", e);
+  }
 
   document.documentElement.classList.add("js-ready");
 })();

@@ -117,8 +117,48 @@
 
   function lucideIconSvg(iconName) {
     var Icon = findLucideIcon(iconName);
-    if (!Icon || typeof Icon.toSvg !== "function") return "";
-    return Icon.toSvg({ "stroke-width": 1.5 });
+    if (!Icon) return "";
+
+    // lucide@latest UMD 中 icons[name] 是 iconNode 数组，不一定提供 toSvg。
+    if (typeof Icon.toSvg === "function") {
+      return Icon.toSvg({ "stroke-width": 1.5 });
+    }
+    if (!Array.isArray(Icon)) return "";
+
+    var attrs = {
+      xmlns: "http://www.w3.org/2000/svg",
+      width: "24",
+      height: "24",
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "currentColor",
+      "stroke-width": "1.5",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+      "aria-hidden": "true",
+    };
+    var parts = [];
+    var keys = Object.keys(attrs);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      parts.push(k + '="' + attrs[k] + '"');
+    }
+
+    var children = "";
+    for (var j = 0; j < Icon.length; j++) {
+      var node = Icon[j];
+      if (!node || !node.length) continue;
+      var tag = node[0];
+      var nodeAttrs = node[1] || {};
+      var nodeKeys = Object.keys(nodeAttrs);
+      var nodeParts = [];
+      for (var n = 0; n < nodeKeys.length; n++) {
+        var nk = nodeKeys[n];
+        nodeParts.push(nk + '="' + String(nodeAttrs[nk]) + '"');
+      }
+      children += "<" + tag + (nodeParts.length ? " " + nodeParts.join(" ") : "") + "></" + tag + ">";
+    }
+    return "<svg " + parts.join(" ") + ">" + children + "</svg>";
   }
 
   function renderAchievementIcon(achievement) {

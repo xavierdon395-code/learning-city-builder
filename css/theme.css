@@ -81,7 +81,7 @@ body {
   display: block;
 }
 
-body > *:not(.cosmos-bg) {
+body > *:not(.cosmos-bg):not(.app-top-bar):not(.top-nav) {
   position: relative;
   z-index: 1;
 }
