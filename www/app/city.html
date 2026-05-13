@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学习城市建设者 — 星座成就殿堂</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/app.css" />
+    <link rel="stylesheet" href="../css/dev-panel.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  </head>
+  <body class="city-page ach-page app-body--nav-56">
+    <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
+    <header class="app-top-bar">
+      <div class="app-top-bar__left">
+        <div class="app-top-bar__logo">
+          <div class="app-top-bar__logo-dot"></div>
+        </div>
+        <span class="app-top-bar__brand">Lumi</span>
+      </div>
+      <div class="app-top-bar__right">
+        <div class="app-top-bar__moon-pill">
+          <div class="app-top-bar__moon-dot"></div>
+          <span id="topbar-zodiac">金牛月</span>
+        </div>
+        <div class="app-top-bar__avatar" id="topbar-avatar" onclick="logout()" title="点击退出">
+          <span id="topbar-avatar-initial">U</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="card card--ach-hero">
+        <h1 class="ach-page-title pixel-title">星座成就殿堂</h1>
+        <div class="ach-stat-bar-wrap">
+          <div class="ach-stat-line">
+            <span>已解锁 <strong id="ach-stat-unlocked">0 / 50</strong></span>
+          </div>
+          <div class="ach-progress-wrap">
+            <div class="ach-progress-bar" id="ach-stat-bar"></div>
+          </div>
+          <p class="ach-stat-recent muted" id="ach-stat-recent">最近：—</p>
+        </div>
+      </section>
+
+      <div id="ach-wall"></div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <a href="index.html" data-nav="home"><span class="emoji">🏠</span>首页</a>
+      <a href="goals.html" data-nav="goals"><span class="emoji">🎯</span>目标</a>
+      <a href="city.html" data-nav="achievements"><span class="emoji">🏆</span>成就</a>
+      <a href="stats.html" data-nav="stats"><span class="emoji">📊</span>统计</a>
+    </nav>
+
+    <div class="ach-celebrate" id="ach-celebrate" aria-hidden="true">
+      <div class="ach-celebrate__stars"></div>
+      <div class="ach-celebrate__box">
+        <div class="ach-celebrate__icon">🏆</div>
+        <p class="ach-celebrate__title pixel-title">新徽章</p>
+        <p class="ach-celebrate__sub"></p>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-data.js"></script>
+    <script src="../js/app-shared.js"></script>
+    <script src="../js/achievements.js"></script>
+    <script src="../js/background.js"></script>
+    <script src="../js/city.js"></script>
+    <script src="../js/dev-panel.js"></script>
+  </body>
+</html>

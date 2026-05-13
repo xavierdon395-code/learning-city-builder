@@ -1,0 +1,28 @@
+{
+  "name": "learning-city-builder",
+  "version": "1.0.0",
+  "description": "> AI-powered learning planner with constellation-themed achievements",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xavierdon395-code/learning-city-builder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/xavierdon395-code/learning-city-builder/issues"
+  },
+  "homepage": "https://github.com/xavierdon395-code/learning-city-builder#readme",
+  "dependencies": {
+    "@capacitor/cli": "^8.3.3",
+    "@capacitor/core": "^8.3.3",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/ios": "^8.3.3",
+    "@capacitor/share": "^8.0.1"
+  }
+}

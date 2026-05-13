@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学习城市建设者 — 目标任务详情</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/dev-panel.css" />
+    <style>
+      .gd-input {
+        width: 100%;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        padding: 8px 10px;
+      }
+      .gd-input::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+      }
+      .task-edit {
+        margin-top: 10px;
+      }
+      .gd-batch-panel {
+        margin-top: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.2);
+      }
+      .gd-batch-item {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 8px;
+      }
+      .gd-row {
+        display: flex;
+        gap: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
+    <header class="top-nav">
+      <a class="top-nav__brand" href="index.html">
+        <span class="logo-pixel" aria-hidden="true"></span>
+        <span class="nav-zodiac" data-zodiac-slot></span>
+        <span class="pixel-title brand-title">学习城市建设者</span>
+      </a>
+      <div class="top-nav__user">
+        <div class="avatar-pixel" id="nav-user-initial">学</div>
+        <div class="nav-user-meta">
+          <span class="nav-user-name" id="nav-user-name">学习者</span>
+        </div>
+        <button type="button" class="btn-nav-out btn btn--danger btn--small" id="nav-logout">退出</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="card">
+        <div class="section-head">
+          <h1 class="card__title" id="gd-title" style="margin: 0">目标任务详情</h1>
+          <button type="button" class="btn btn--secondary" id="gd-back">返回目标列表</button>
+        </div>
+        <p class="muted" id="gd-meta">—</p>
+        <p class="muted" style="margin-top: 8px">点击「编辑任务」可调整任务内容、时长和类型，并实时保存到云端。</p>
+        <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn--secondary btn--small" id="gd-batch-toggle">批量编辑未来7天任务</button>
+        </div>
+        <div id="gd-batch-panel" class="gd-batch-panel" hidden>
+          <p class="muted" style="margin: 0 0 8px">以下为未来7天任务（从今天起）；可一次性批量调整后保存。</p>
+          <div id="gd-batch-list"></div>
+          <div style="margin-top: 10px; display: flex; gap: 8px;">
+            <button type="button" class="btn btn--primary btn--small" id="gd-batch-save">保存这7天</button>
+            <button type="button" class="btn btn--ghost btn--small" id="gd-batch-cancel">取消</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div id="gd-empty" class="empty-state" hidden>
+          <div class="empty-pixel" aria-hidden="true"></div>
+          <p>该目标还没有可展示的任务。</p>
+        </div>
+        <div id="gd-list" class="task-list"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <a href="index.html" data-nav="home"><span class="emoji">🏠</span>首页</a>
+      <a href="goals.html" data-nav="goals"><span class="emoji">🎯</span>目标</a>
+      <a href="city.html" data-nav="achievements"><span class="emoji">🏆</span>成就</a>
+      <a href="stats.html" data-nav="stats"><span class="emoji">📊</span>统计</a>
+    </nav>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-data.js"></script>
+    <script src="../js/app-shared.js"></script>
+    <script src="../js/background.js"></script>
+    <script src="../js/goal-detail.js"></script>
+    <script src="../js/dev-panel.js"></script>
+  </body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>学习城市建设者 — 首页</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/app.css" />
+    <link rel="stylesheet" href="../css/weekly-report-modal.css" />
+    <link rel="stylesheet" href="../css/dev-panel.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  </head>
+  <body class="app-body app-body--nav-56">
+    <canvas id="cosmos-bg" class="cosmos-bg" aria-hidden="true"></canvas>
+    <header class="app-top-bar">
+      <div class="app-top-bar__left">
+        <div class="app-top-bar__logo">
+          <div class="app-top-bar__logo-dot"></div>
+        </div>
+        <span class="app-top-bar__brand">Lumi</span>
+      </div>
+      <div class="app-top-bar__right">
+        <div class="app-top-bar__moon-pill">
+          <div class="app-top-bar__moon-dot"></div>
+          <span id="topbar-zodiac">金牛月</span>
+        </div>
+        <div class="app-top-bar__avatar" id="topbar-avatar" onclick="logout()" title="点击退出">
+          <span id="topbar-avatar-initial">U</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="card card--today-constellation card--ig-hero home-today-card">
+        <div class="ig-hero-deco" aria-hidden="true">
+          <div class="ig-hero-deco__ring"></div>
+          <div class="ig-hero-deco__constellation"></div>
+        </div>
+        <div class="card--ig-hero__content">
+          <h2 class="card__title">今日任务</h2>
+          <p class="muted" id="home-date">—</p>
+          <p class="muted" style="margin: 4px 0">待完成</p>
+          <div class="stat-big pixel-digit" id="home-pending-big">0</div>
+          <p class="muted" id="home-today-progress-label">已完成 0 / 0 个任务</p>
+          <p class="muted" style="margin-top: 6px; font-size: 0.78rem; line-height: 1.4">
+            若目标为「大纲 + 7 天续窗」模式：🌙 打卡后系统会自动准备未来几天的任务（无需手动重排）。
+          </p>
+          <div class="pixel-progress pixel-progress--today" id="home-today-pixel-bar" aria-label="今日进度"></div>
+          <button type="button" class="btn btn--primary btn-block" id="btn-today-study" style="margin-top: 12px">
+            开始今日学习
+          </button>
+        </div>
+      </section>
+
+      <section class="card home-goals-card">
+        <div class="section-head">
+          <h2 class="card__title" style="margin: 0">我的目标</h2>
+          <button type="button" class="btn btn--secondary" id="btn-new-goal">＋ 新建目标</button>
+        </div>
+        <div id="home-goals-empty" class="empty-state" hidden>
+          <div class="empty-pixel" aria-hidden="true"></div>
+          <p>还没有目标，点击创建第一个目标</p>
+        </div>
+        <div id="home-goals-list" class="goal-grid" hidden></div>
+      </section>
+
+      <section class="card home-badges-card">
+        <div class="section-head">
+          <h2 class="card__title" style="margin: 0">最近获得的徽章</h2>
+          <a href="city.html" class="btn btn--secondary">全部成就 →</a>
+        </div>
+        <p class="muted" id="home-ach-hint">完成目标与任务即可解锁徽章</p>
+        <div id="home-ach-badges" class="ach-home-row"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <a href="index.html" data-nav="home"><span class="emoji">🏠</span>首页</a>
+      <a href="goals.html" data-nav="goals"><span class="emoji">🎯</span>目标</a>
+      <a href="city.html" data-nav="achievements"><span class="emoji">🏆</span>成就</a>
+      <a href="stats.html" data-nav="stats"><span class="emoji">📊</span>统计</a>
+    </nav>
+
+    <div class="ach-celebrate" id="ach-celebrate-home" aria-hidden="true">
+      <div class="ach-celebrate__stars"></div>
+      <div class="ach-celebrate__box">
+        <div class="ach-celebrate__icon">🏆</div>
+        <p class="ach-celebrate__title pixel-title">新徽章</p>
+        <p class="ach-celebrate__sub"></p>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/app-data.js"></script>
+    <script src="../js/weekly-report-data.js"></script>
+    <script src="../js/app-shared.js"></script>
+    <script src="../js/goal-ui.js"></script>
+    <script src="../js/secrets.local.js"></script>
+    <script src="../js/rolling-plan.js"></script>
+    <script src="../js/weekly-report-ai.js"></script>
+    <script src="../js/weekly-report-modal.js"></script>
+    <script src="../js/achievements.js"></script>
+    <script src="../js/background.js"></script>
+    <script src="../js/cosmos-dialog.js"></script>
+    <script src="../js/home.js"></script>
+    <script src="../js/dev-panel.js"></script>
+  </body>
+</html>
