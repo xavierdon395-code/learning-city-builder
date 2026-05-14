@@ -69,8 +69,10 @@ body {
     radial-gradient(ellipse 100% 90% at 50% 100%, #161412 0%, #0f0e0c 55%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
-  padding-top: var(--nav-h);
-  padding-bottom: var(--bottom-nav-h);
+  padding-top: calc(var(--nav-h) + env(safe-area-inset-top));
+  padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .cosmos-bg {
@@ -113,11 +115,11 @@ body.page-enter-active .login-footer {
   left: 0;
   right: 0;
   z-index: 100;
-  height: var(--nav-h);
+  height: calc(var(--nav-h) + env(safe-area-inset-top));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 18px;
+  padding: env(safe-area-inset-top) calc(18px + env(safe-area-inset-right)) 0 calc(18px + env(safe-area-inset-left));
   background: rgba(22, 20, 18, 0.78);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
@@ -199,12 +201,12 @@ body.page-enter-active .login-footer {
 
 /* —— 首页 · 极简顶栏（仅 app/index.html） —— */
 body.app-body--nav-56 {
-  padding-top: 56px;
+  padding-top: calc(56px + env(safe-area-inset-top));
 }
 
 .top-nav.top-nav--home-minimal {
-  height: 56px;
-  padding: 0 24px;
+  height: calc(56px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) calc(24px + env(safe-area-inset-right)) 0 calc(24px + env(safe-area-inset-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -307,7 +309,9 @@ body.app-body--nav-56 {
   left: 0;
   right: 0;
   z-index: 100;
-  height: var(--bottom-nav-h);
+  height: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   display: flex;
   justify-content: space-around;
   align-items: center;
