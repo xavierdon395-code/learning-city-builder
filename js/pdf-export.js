@@ -30,6 +30,63 @@ const PDFExport = (function () {
     return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
   }
 
+
+  /**
+   * 跨平台保存 PDF。
+   * - iOS 原生 (Capacitor): 写文件到 Cache 目录后调用系统分享菜单（用户可保存到"文件 App"、AirDrop、邮件等）
+   * - Web / Android / 其他: 回退到 jsPDF 自带的浏览器下载
+   * 失败时退回 doc.save() 作为兜底。
+   */
+  async function savePDFToDevice(doc, filename) {
+    var Cap = (typeof window !== "undefined") ? window.Capacitor : null;
+    var isIOSNative = Cap && Cap.isNativePlatform && Cap.isNativePlatform()
+                     && Cap.getPlatform && Cap.getPlatform() === "ios";
+
+    if (!isIOSNative) {
+      // Web / Android: jsPDF 自带下载
+      doc.save(filename);
+      return;
+    }
+
+    // iOS 原生路径
+    try {
+      var Plugins = Cap.Plugins || {};
+      var Filesystem = Plugins.Filesystem;
+      var Share = Plugins.Share;
+
+      if (!Filesystem || !Share) {
+        console.warn("[PDF] Capacitor Filesystem/Share 不可用，回退到 doc.save");
+        doc.save(filename);
+        return;
+      }
+
+      // 拿到 base64 数据（不含 "data:application/pdf;base64," 前缀）
+      var dataUri = doc.output("datauristring");
+      var base64 = dataUri.substring(dataUri.indexOf(",") + 1);
+
+      // 写到 Cache 目录（系统会自动清理，不占用永久存储）
+      var writeRes = await Filesystem.writeFile({
+        path: filename,
+        data: base64,
+        directory: "CACHE",
+      });
+
+      // 调起系统分享菜单
+      await Share.share({
+        title: filename,
+        url: writeRes.uri,
+        dialogTitle: "保存或分享 PDF",
+      });
+    } catch (err) {
+      console.error("[PDF] iOS 分享失败，回退到 doc.save", err);
+      try {
+        doc.save(filename);
+      } catch (_e) {
+        // 已尽力
+      }
+    }
+  }
+
   /**
    * @param {object} options
    * @param {string} [options.uid]
@@ -85,7 +142,7 @@ const PDFExport = (function () {
     renderGoalsPage(doc, dataOpts);
 
     var filename = "Lumi-Learning-Archive-" + formatDate(new Date()) + ".pdf";
-    doc.save(filename);
+    await savePDFToDevice(doc, filename);
   }
 
   /**
