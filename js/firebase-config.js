@@ -18,23 +18,8 @@ function initFirebase() {
     firebase.initializeApp(FIREBASE_CONFIG);
   }
   
-  const auth = firebase.auth();
-  
-  // 🔧 仅 iOS Capacitor 原生 WebView 启用测试模式（跳过 reCAPTCHA）
-  // ⚠️ 上架前必须移除此段，改用 Capacitor Firebase 原生插件
-  const isNativeIOS = window.Capacitor 
-                   && window.Capacitor.isNativePlatform 
-                   && window.Capacitor.isNativePlatform()
-                   && window.Capacitor.getPlatform 
-                   && window.Capacitor.getPlatform() === 'ios';
-  
-  if (isNativeIOS) {
-    auth.settings.appVerificationDisabledForTesting = true;
-    console.log('[Firebase] iOS test mode enabled - using whitelist test numbers');
-  }
-  
   return {
-    auth: auth,
+    auth: firebase.auth(),
     db: firebase.database(),
   };
 }
