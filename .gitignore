@@ -40,3 +40,7 @@ temp/
 *_项目档案.txt
 # 字体原始文件（OTF 太大,可重新下载;只追踪子集化后的 TTF）
 fonts/*.otf
+
+# Apple 凭证（私钥,严禁上传）
+apple-keys/
+*.p8
