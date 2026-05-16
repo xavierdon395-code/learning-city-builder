@@ -113,10 +113,22 @@
           <input id="cg-deadline" type="date" />
         </div>
         <div class="form-field">
-          <span class="muted" style="display: block; margin-bottom: 8px">每日可用时间</span>
+          <span class="muted cg-time-heading">每日可用时间</span>
           <div class="cg-time-mode">
-            <label><input type="radio" name="cg-time-mode" value="uniform" checked /> 模式 A：统一设置</label>
-            <label><input type="radio" name="cg-time-mode" value="weekly" /> 模式 B：分天设置</label>
+            <label class="cg-time-card">
+              <input class="cg-time-card__radio" type="radio" name="cg-time-mode" value="uniform" checked />
+              <span class="cg-time-card__content">
+                <span class="cg-time-card__title">模式 A：统一设置</span>
+                <span class="cg-time-card__desc">每天使用相同学习时长</span>
+              </span>
+            </label>
+            <label class="cg-time-card">
+              <input class="cg-time-card__radio" type="radio" name="cg-time-mode" value="weekly" />
+              <span class="cg-time-card__content">
+                <span class="cg-time-card__title">模式 B：分天设置</span>
+                <span class="cg-time-card__desc">周一至周日分别设置时长</span>
+              </span>
+            </label>
           </div>
           <div id="cg-time-uniform-wrap">
             <label for="cg-hours">每天相同（0.5–8 小时）</label>
