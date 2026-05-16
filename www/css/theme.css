@@ -81,7 +81,7 @@ body {
   display: block;
 }
 
-body > *:not(.cosmos-bg):not(.app-top-bar):not(.top-nav) {
+body > *:not(.cosmos-bg):not(.app-top-bar):not(.top-nav):not(.bottom-nav) {
   position: relative;
   z-index: 1;
 }
@@ -3327,3 +3327,28 @@ body::before {
 }
 
 
+
+
+/* === Lumi final fixed bottom nav patch 2026-05-17 === */
+
+body > .bottom-nav,
+.bottom-nav {
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: var(--bottom-nav-total-h) !important;
+  padding-bottom: var(--bottom-nav-safe) !important;
+  z-index: 9999 !important;
+  box-sizing: border-box !important;
+}
+
+body {
+  padding-bottom: var(--bottom-nav-total-h) !important;
+}
+
+.app-main,
+main {
+  padding-bottom: calc(var(--bottom-nav-total-h) + 32px) !important;
+}
