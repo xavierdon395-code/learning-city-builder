@@ -3026,3 +3026,99 @@ main.app-main {
 .cosmos-dialog__panel {
   max-height: 80vh !important;
 }
+
+
+/* === Lumi dialog and login polish 2026-05-16 === */
+
+/* 登录消息：info 状态 */
+.msg.info {
+  color: #f5d77b;
+  border-color: rgba(245, 215, 123, 0.35);
+  background: rgba(245, 215, 123, 0.08);
+}
+
+/* 登录成功跳转遮罩，避免白屏突兀 */
+#route-loading-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(245, 215, 123, 0.14), transparent 32%),
+    rgba(5, 5, 7, 0.96);
+  backdrop-filter: blur(10px);
+}
+
+.route-loading-card {
+  width: min(78vw, 320px);
+  padding: 28px 24px;
+  border-radius: 24px;
+  border: 1px solid rgba(245, 215, 123, 0.28);
+  background: rgba(18, 16, 22, 0.88);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.42);
+  text-align: center;
+  color: #f8f0d2;
+}
+
+.route-loading-spinner {
+  width: 34px;
+  height: 34px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  border: 3px solid rgba(245, 215, 123, 0.22);
+  border-top-color: rgba(245, 215, 123, 0.95);
+  animation: lumi-spin 0.85s linear infinite;
+}
+
+.route-loading-text {
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+
+@keyframes lumi-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* 删除弹窗：无论页面滚到哪里，都固定居中 */
+.cosmos-dialog-backdrop,
+.cosmos-dialog-overlay,
+.dialog-backdrop,
+.modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99990 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  background: rgba(0, 0, 0, 0.48) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.cosmos-dialog,
+.cosmos-dialog__panel,
+.cosmos-dialog-panel,
+.dialog,
+.confirm-dialog,
+.modal {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 99999 !important;
+  width: min(88vw, 420px) !important;
+  max-height: 78vh !important;
+  overflow: auto !important;
+  margin: 0 !important;
+}
+
+/* 删除弹窗按钮区保持可见 */
+.cosmos-dialog__actions,
+.dialog-actions,
+.modal-actions {
+  position: sticky;
+  bottom: 0;
+  padding-top: 16px;
+}

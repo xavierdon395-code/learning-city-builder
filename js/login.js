@@ -31,6 +31,49 @@
     els.msg.className = "msg" + (type ? " " + type : "");
   }
 
+  function friendlyAuthError(err) {
+    var code = err && err.code ? String(err.code) : "";
+    if (code.indexOf("network-request-failed") >= 0) {
+      return "网络连接失败：请检查手机网络/VPN，稍后再试。";
+    }
+    if (code.indexOf("invalid-credential") >= 0 || code.indexOf("wrong-password") >= 0) {
+      return "邮箱或密码不正确，请检查后重试。";
+    }
+    if (code.indexOf("user-not-found") >= 0) {
+      return "这个邮箱还没有注册，请先点击“没有账号？注册”。";
+    }
+    if (code.indexOf("too-many-requests") >= 0) {
+      return "尝试次数过多，请稍后再试。";
+    }
+    if (code.indexOf("invalid-email") >= 0) {
+      return "邮箱格式不正确。";
+    }
+    if (code.indexOf("weak-password") >= 0) {
+      return "密码强度太低，请至少设置 6 位。";
+    }
+    return (err && err.message) || "登录失败，请稍后重试。";
+  }
+
+  function setEmailLoading(isLoading, text) {
+    if (!els.emailSubmit) return;
+    els.emailSubmit.disabled = !!isLoading;
+    els.emailSubmit.textContent = isLoading ? (text || "正在登录…") : (emailIsRegister ? "注册并进入" : "登录");
+  }
+
+  function showRouteLoading(text) {
+    var old = document.getElementById("route-loading-mask");
+    if (old) old.remove();
+
+    var mask = document.createElement("div");
+    mask.id = "route-loading-mask";
+    mask.innerHTML =
+      '<div class="route-loading-card">' +
+      '<div class="route-loading-spinner"></div>' +
+      '<div class="route-loading-text">' + (text || "正在进入 Lumi…") + '</div>' +
+      '</div>';
+    document.body.appendChild(mask);
+  }
+
   function showTab(which) {
     const isPhone = which === "phone";
     els.tabPhone.setAttribute("aria-selected", isPhone);
@@ -109,7 +152,10 @@
       })
       .then(function () {
         setMessage("登录成功，正在进入应用…", "success");
-        window.location.href = "app/index.html";
+        showRouteLoading("登录成功，正在进入 Lumi…");
+        setTimeout(function () {
+          window.location.href = "app/index.html";
+        }, 250);
       })
       .catch(function (err) {
         console.error(err);
@@ -141,7 +187,8 @@
     }
 
     const { auth } = initFirebase();
-    els.emailSubmit.disabled = true;
+    setMessage(emailIsRegister ? "正在注册账号…" : "正在登录，请稍候…", "info");
+    setEmailLoading(true, emailIsRegister ? "正在注册…" : "正在登录…");
 
     const promise = emailIsRegister
       ? auth.createUserWithEmailAndPassword(email, password)
@@ -155,14 +202,17 @@
       })
       .then(function () {
         setMessage("登录成功，正在进入应用…", "success");
-        window.location.href = "app/index.html";
+        showRouteLoading("登录成功，正在进入 Lumi…");
+        setTimeout(function () {
+          window.location.href = "app/index.html";
+        }, 250);
       })
       .catch(function (err) {
         console.error(err);
-        setMessage(err.message || "邮箱登录失败。", "error");
+        setMessage(friendlyAuthError(err), "error");
       })
       .finally(function () {
-        els.emailSubmit.disabled = false;
+        setEmailLoading(false);
       });
   }
 
