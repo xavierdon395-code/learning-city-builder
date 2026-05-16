@@ -18,6 +18,9 @@
     emailSubmit: document.getElementById("email-submit"),
     emailModeToggle: document.getElementById("email-mode-toggle"),
     fieldConfirm: document.getElementById("field-confirm"),
+    appleLoginWrap: document.getElementById("apple-login-wrap"),
+    appleLogin: document.getElementById("apple-login"),
+    appleLoginLabel: document.getElementById("apple-login-label"),
     msg: document.getElementById("auth-message"),
     recaptcha: document.getElementById("recaptcha-container"),
   };
@@ -25,6 +28,8 @@
   let recaptchaVerifier = null;
   let confirmationResult = null;
   let emailIsRegister = false;
+  let applePluginRef = null;
+  let applePluginResolved = false;
 
   function setMessage(text, type) {
     els.msg.textContent = text || "";
@@ -60,6 +65,20 @@
     els.emailSubmit.textContent = isLoading ? (text || "正在登录…") : (emailIsRegister ? "注册并进入" : "登录");
   }
 
+  function setAppleLoading(isLoading) {
+    if (!els.appleLogin) return;
+    els.appleLogin.disabled = !!isLoading;
+    els.appleLogin.classList.toggle("is-loading", !!isLoading);
+    if (els.appleLoginLabel) {
+      els.appleLoginLabel.textContent = isLoading ? "正在请求 Apple 授权…" : "Sign in with Apple";
+    }
+  }
+
+  function setAppleVisibility(visible) {
+    if (els.appleLoginWrap) els.appleLoginWrap.hidden = !visible;
+    if (els.appleLogin) els.appleLogin.hidden = !visible;
+  }
+
   function showRouteLoading(text) {
     var old = document.getElementById("route-loading-mask");
     if (old) old.remove();
@@ -72,6 +91,99 @@
       '<div class="route-loading-text">' + (text || "正在进入 Lumi…") + '</div>' +
       '</div>';
     document.body.appendChild(mask);
+  }
+
+  function getCapacitorRuntime() {
+    if (typeof window === "undefined") return null;
+    return window.Capacitor || null;
+  }
+
+  function isIOSNativeRuntime() {
+    const cap = getCapacitorRuntime();
+    return !!(
+      cap &&
+      typeof cap.isNativePlatform === "function" &&
+      cap.isNativePlatform() &&
+      typeof cap.getPlatform === "function" &&
+      cap.getPlatform() === "ios"
+    );
+  }
+
+  function getApplePlugin() {
+    const cap = getCapacitorRuntime();
+    if (!cap) return null;
+    if (applePluginResolved) return applePluginRef;
+
+    applePluginResolved = true;
+
+    if (typeof cap.registerPlugin === "function") {
+      try {
+        const registered = cap.registerPlugin("SignInWithApple");
+        if (registered) {
+          applePluginRef = registered;
+          return applePluginRef;
+        }
+      } catch (error) {
+        console.warn("SignInWithApple registerPlugin failed:", error);
+      }
+    }
+
+    if (cap.Plugins) {
+      applePluginRef = cap.Plugins.SignInWithApple || cap.Plugins.SignInWithApplePlugin || null;
+    } else {
+      applePluginRef = null;
+    }
+    return applePluginRef;
+  }
+
+  function isAppleCancelError(err) {
+    const code = err && err.code ? String(err.code).toLowerCase() : "";
+    const message = err && err.message ? String(err.message).toLowerCase() : "";
+    return (
+      code.indexOf("cancel") >= 0 ||
+      code.indexOf("canceled") >= 0 ||
+      code.indexOf("1200") >= 0 ||
+      message.indexOf("cancel") >= 0 ||
+      message.indexOf("canceled") >= 0
+    );
+  }
+
+  function onAppleLogin() {
+    setMessage("");
+    if (!isIOSNativeRuntime()) {
+      setMessage("Apple 原生插件未就绪", "error");
+      return;
+    }
+
+    const applePlugin = getApplePlugin();
+    if (!applePlugin || typeof applePlugin.signIn !== "function") {
+      setMessage("Apple 原生插件未就绪", "error");
+      return;
+    }
+
+    setMessage("正在请求 Apple 授权…", "info");
+    setAppleLoading(true);
+
+    applePlugin
+      .signIn({})
+      .then(function (nativeResult) {
+        const identityToken = nativeResult && (nativeResult.identityToken || nativeResult.idToken);
+        if (!identityToken) {
+          throw new Error("未收到 identityToken");
+        }
+        setMessage("Apple 授权成功，已收到 identityToken", "success");
+      })
+      .catch(function (err) {
+        console.error(err);
+        if (isAppleCancelError(err)) {
+          setMessage("已取消登录", "info");
+          return;
+        }
+        setMessage("Apple 原生插件未就绪", "error");
+      })
+      .finally(function () {
+        setAppleLoading(false);
+      });
   }
 
   function showTab(which) {
@@ -230,6 +342,7 @@
   function init() {
     showTab("email"); // force default email login
     initFirebase();
+    setAppleVisibility(true);
 
     if (els.tabPhone) els.tabPhone.addEventListener("click", function () {
       showTab("phone");
@@ -241,6 +354,7 @@
     if (els.sendCode) els.sendCode.addEventListener("click", onSendCode);
     if (els.phoneLogin) els.phoneLogin.addEventListener("click", onPhoneLogin);
     if (els.emailSubmit) els.emailSubmit.addEventListener("click", onEmailSubmit);
+    if (els.appleLogin) els.appleLogin.addEventListener("click", onAppleLogin);
     if (els.emailModeToggle) els.emailModeToggle.addEventListener("click", toggleEmailMode);
   }
 
