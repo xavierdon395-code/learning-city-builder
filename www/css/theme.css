@@ -1,7 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap");
-
 :root {
-  --bg-primary: #0f0e0c;
+  --bg-primary: #050507;
   --bg-secondary: #161412;
   --bg-card: rgba(30, 27, 23, 0.78);
   --accent-gold: #e0b565;
@@ -40,6 +38,8 @@
 
 html {
   height: 100%;
+  background: #050507;
+  color-scheme: dark;
 }
 
 .visually-hidden {
@@ -62,7 +62,7 @@ body {
   font-size: 0.95rem;
   line-height: 1.55;
   color: var(--text-primary);
-  background-color: var(--bg-primary);
+  background-color: #050507;
   background-image: radial-gradient(ellipse 120% 85% at 50% -20%, rgba(232, 180, 140, 0.14), transparent 50%),
     radial-gradient(ellipse 55% 45% at 95% 25%, rgba(224, 181, 101, 0.08), transparent 50%),
     radial-gradient(ellipse 50% 40% at 5% 70%, rgba(212, 137, 110, 0.1), transparent 48%),
