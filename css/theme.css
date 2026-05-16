@@ -2083,10 +2083,12 @@ body.app-body--nav-56 {
 .ach-wall-status {
   margin: 2px 4px 12px;
   min-height: 1.4em;
+  pointer-events: none;
 }
 
 .ach-wall-skeleton {
   margin-bottom: 12px;
+  pointer-events: none;
 }
 
 .ach-skeleton-title,
@@ -2115,6 +2117,7 @@ body.app-body--nav-56 {
 .ach-card--skeleton {
   min-height: 96px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
 }
 
 .ach-card {

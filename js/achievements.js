@@ -1263,20 +1263,24 @@
         return !!(list && list.length);
       });
       var idx = 0;
-      return new Promise(function (resolve) {
+      return new Promise(function (resolve, reject) {
         function paintChunk() {
-          var start = Date.now();
-          while (idx < entries.length && Date.now() - start < 12) {
-            var series = entries[idx];
-            var sec = buildSeriesSection(series, bySeries[series]);
-            host.appendChild(sec);
-            idx += 1;
+          try {
+            var start = Date.now();
+            while (idx < entries.length && Date.now() - start < 12) {
+              var series = entries[idx];
+              var sec = buildSeriesSection(series, bySeries[series]);
+              host.appendChild(sec);
+              idx += 1;
+            }
+            if (idx < entries.length) {
+              window.requestAnimationFrame(paintChunk);
+              return;
+            }
+            resolve();
+          } catch (e) {
+            reject(e);
           }
-          if (idx < entries.length) {
-            window.requestAnimationFrame(paintChunk);
-            return;
-          }
-          resolve();
         }
         paintChunk();
       });
@@ -1284,10 +1288,10 @@
   }
 
   function renderWallWhenIconReady(uid) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
       waitForLucide(function () {
         scheduleIdleTask(function () {
-          Promise.resolve(renderWall(uid)).then(resolve, resolve);
+          Promise.resolve(renderWall(uid)).then(resolve).catch(reject);
         });
       });
     });
@@ -1295,6 +1299,28 @@
 
   function initWallPage(uid) {
     var rootId = "ach-celebrate";
+    var finished = false;
+    var timeoutId = window.setTimeout(function () {
+      if (finished) return;
+      finished = true;
+      setWallReadyState("加载超时，请切换页面后重试");
+    }, 8000);
+
+    function finishSuccess(message) {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timeoutId);
+      setWallReadyState(message || "");
+    }
+
+    function finishError(e) {
+      if (finished) return;
+      finished = true;
+      window.clearTimeout(timeoutId);
+      console.error(e);
+      setWallReadyState("加载失败，请稍后重试");
+    }
+
     setWallLoadingState("星图加载中…");
     AppData.loadProfile(uid)
       .then(function (profile) {
@@ -1302,7 +1328,7 @@
           return renderWallWhenIconReady(uid).then(function () {
             var recent = document.getElementById("ach-stat-recent");
             if (recent) recent.textContent = "最近：开发者模式已暂停自动检测（请在 DEV 面板手动重检）";
-            setWallReadyState("星图已加载（开发者模式）");
+            finishSuccess("星图已加载（开发者模式）");
           });
         }
         return checkAchievements(uid)
@@ -1319,13 +1345,10 @@
             return renderWallWhenIconReady(uid);
           })
           .then(function () {
-            setWallReadyState("");
+            finishSuccess("");
           });
       })
-      .catch(function (e) {
-        console.error(e);
-        setWallReadyState("星图加载失败，请稍后重试");
-      });
+      .catch(finishError);
   }
 
   function runCheckAndCelebrate(uid, celebrateRootId) {

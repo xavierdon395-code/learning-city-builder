@@ -1,8 +1,37 @@
 (function () {
   "use strict";
 
+  var homeRefreshSeq = 0;
+
+  function asObject(value) {
+    return value && typeof value === "object" ? value : {};
+  }
+
+  function setHomeFallbackState(message) {
+    var listEl = document.getElementById("home-goals-list");
+    var emptyEl = document.getElementById("home-goals-empty");
+    if (listEl) {
+      listEl.innerHTML = "";
+      listEl.hidden = true;
+    }
+    if (emptyEl) {
+      emptyEl.hidden = false;
+      emptyEl.textContent = message || "加载失败，请稍后重试";
+    }
+
+    var pendingEl = document.getElementById("home-pending-big");
+    if (pendingEl) pendingEl.textContent = "0";
+
+    var labelEl = document.getElementById("home-today-progress-label");
+    if (labelEl) labelEl.textContent = "已完成 0 / 0 个任务";
+
+    var barEl = document.getElementById("home-today-pixel-bar");
+    if (barEl) GoalUI.renderPixelBar(barEl, 0, 12);
+  }
+
   function refresh(user) {
     var uid = user.uid;
+    var seq = ++homeRefreshSeq;
     Promise.all([
       AppData.loadProfile(uid),
       AppData.loadGoals(uid),
@@ -10,10 +39,12 @@
       AppData.loadAllTasks(uid),
     ])
       .then(function (res) {
-        var profile = res[0];
-        var goalsRaw = res[1];
-        var todayTasks = res[2];
-        var allTasks = res[3];
+        if (seq !== homeRefreshSeq) return;
+        res = res || [];
+        var profile = asObject(res[0]);
+        var goalsRaw = asObject(res[1]);
+        var todayTasks = asObject(res[2]);
+        var allTasks = asObject(res[3]);
 
         AppShared.hydrateUserChip(user, profile);
 
@@ -153,12 +184,25 @@
 
         var ach = window.Achievements;
         if (!ach) return;
-        return ach.runCheckAndCelebrate(uid, "ach-celebrate-home").then(function () {
-          ach.renderHomeBadges(uid, document.getElementById("home-ach-badges"));
-        });
+        Promise.resolve()
+          .then(function () {
+            return ach.runCheckAndCelebrate(uid, "ach-celebrate-home");
+          })
+          .catch(function (e) {
+            console.error(e);
+          })
+          .then(function () {
+            return ach.renderHomeBadges(uid, document.getElementById("home-ach-badges"));
+          })
+          .catch(function (e) {
+            console.error(e);
+          });
       })
       .catch(function (e) {
+        if (seq !== homeRefreshSeq) return;
         console.error(e);
+        AppShared.hydrateUserChip(user, {});
+        setHomeFallbackState("加载失败，请稍后重试");
       });
   }
 
