@@ -2,7 +2,7 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>学习城市建设者 — 登录</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,11 +24,11 @@
         </header>
 
         <div class="login-tabs" role="tablist">
-          <button type="button" id="tab-phone" role="tab" aria-selected="true" aria-controls="section-phone">手机号</button>
-          <button type="button" id="tab-email" role="tab" aria-selected="false" aria-controls="section-email">邮箱</button>
+          <button type="button" id="tab-phone" role="tab" aria-selected="false" aria-controls="section-phone" style="display:none">手机号</button>
+          <button type="button" id="tab-email" role="tab" aria-selected="true" aria-controls="section-email">邮箱</button>
         </div>
 
-        <section id="section-phone" role="tabpanel" aria-labelledby="tab-phone">
+        <section class="auth-section" id="section-phone" role="tabpanel" aria-labelledby="tab-phone" style="display:none">
           <div class="field">
             <label for="phone-input">手机号（中国大陆）</label>
             <input
@@ -54,7 +54,7 @@
           <button type="button" class="btn btn--primary btn-block" id="phone-login">验证并登录</button>
         </section>
 
-        <section id="section-email" role="tabpanel" aria-labelledby="tab-email" hidden>
+        <section class="auth-section is-active" id="section-email" role="tabpanel" aria-labelledby="tab-email">
           <div class="field">
             <label for="email-input">邮箱</label>
             <input id="email-input" type="email" autocomplete="username" placeholder="you@example.com" />

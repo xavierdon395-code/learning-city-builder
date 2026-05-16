@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/xavierdon395-code/learning-city-builder#readme",
   "dependencies": {
-    "@capacitor-firebase/authentication": "^8.2.0",
     "@capacitor/cli": "^8.3.3",
     "@capacitor/core": "^8.3.3",
     "@capacitor/filesystem": "^8.1.2",
