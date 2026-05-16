@@ -42,6 +42,14 @@ html {
   color-scheme: dark;
 }
 
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+  overscroll-behavior-x: none;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -69,6 +77,8 @@ body {
     radial-gradient(ellipse 100% 90% at 50% 100%, #161412 0%, #0f0e0c 55%);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding-top: var(--nav-h);
   padding-bottom: var(--bottom-nav-h);
 }
@@ -79,6 +89,17 @@ body {
   z-index: 0;
   pointer-events: none;
   display: block;
+}
+
+.cosmos-bg,
+.shooting-star,
+.cosmos-line,
+.hero-constellation,
+.task-constellation,
+.zodiac-orbit,
+.ach-wall-skeleton {
+  max-width: 100vw;
+  pointer-events: none;
 }
 
 body > *:not(.cosmos-bg):not(.app-top-bar):not(.top-nav):not(.bottom-nav) {
@@ -369,6 +390,14 @@ body.app-body--nav-56 {
 .bottom-nav .nav-label {
   display: inline-block;
   line-height: 1.2;
+}
+
+.app-main,
+.login-shell,
+main {
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 /* —— 主内容 —— */
