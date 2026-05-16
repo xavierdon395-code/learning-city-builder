@@ -136,9 +136,11 @@ const PDFExport = (function () {
     });
 
     doc.addPage();
+    await ensureChineseFont(doc);
     renderOverviewPage(doc, dataOpts);
 
     doc.addPage();
+    await ensureChineseFont(doc);
     renderGoalsPage(doc, dataOpts);
 
     var filename = "Lumi-Learning-Archive-" + formatDate(new Date()) + ".pdf";
@@ -329,6 +331,7 @@ const PDFExport = (function () {
 
   function renderGoalsPage(doc, options) {
     options = options || {};
+    try { doc.setFont("NotoSansSC", "normal"); } catch (_) {}
     var pageW = LAYOUT.page_width;
     var tasksTree = options.tasksTree || {};
     var goalsRaw = options.goalsRaw || {};
@@ -411,6 +414,7 @@ const PDFExport = (function () {
       if (y + rowH > maxY) {
         renderPageFooter(doc, "GOALS");
         doc.addPage();
+        try { doc.setFont("NotoSansSC", "normal"); } catch (_) {}
         doc.setFillColor(COLORS.bg);
         doc.rect(0, 0, pageW, LAYOUT.page_height, "F");
         drawGoalsHeader(true);
@@ -439,6 +443,7 @@ const PDFExport = (function () {
       if (metaParts.length > 0) {
         doc.setFontSize(8);
         doc.setTextColor(mutedRgb[0], mutedRgb[1], mutedRgb[2]);
+        doc.setFont("NotoSansSC", "normal");
         doc.text(metaParts.join("  ·  "), LAYOUT.margin_x, barY + barH + 5);
       }
 
