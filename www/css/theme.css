@@ -3122,3 +3122,25 @@ main.app-main {
   bottom: 0;
   padding-top: 16px;
 }
+
+
+/* === Lumi anti-white-flash safe patch 2026-05-16 === */
+
+html,
+body {
+  background-color: #050507 !important;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(245, 215, 123, 0.08), transparent 28%),
+    #050507;
+}
