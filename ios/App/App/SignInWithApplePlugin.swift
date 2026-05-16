@@ -2,6 +2,7 @@ import Foundation
 import Capacitor
 import AuthenticationServices
 import UIKit
+import CryptoKit
 
 @objc(SignInWithApplePlugin)
 public class SignInWithApplePlugin: CAPPlugin, CAPBridgedPlugin {
@@ -12,6 +13,7 @@ public class SignInWithApplePlugin: CAPPlugin, CAPBridgedPlugin {
     ]
 
     private var activeCall: CAPPluginCall?
+    private var activeRawNonce: String?
 
     @objc func signIn(_ call: CAPPluginCall) {
         if activeCall != nil {
@@ -25,10 +27,13 @@ public class SignInWithApplePlugin: CAPPlugin, CAPBridgedPlugin {
         }
 
         activeCall = call
+        let rawNonce = randomNonceString()
+        activeRawNonce = rawNonce
 
         let provider = ASAuthorizationAppleIDProvider()
         let request = provider.createRequest()
         request.requestedScopes = [.fullName, .email]
+        request.nonce = sha256(rawNonce)
 
         let controller = ASAuthorizationController(authorizationRequests: [request])
         controller.delegate = self
@@ -38,6 +43,41 @@ public class SignInWithApplePlugin: CAPPlugin, CAPBridgedPlugin {
 
     private func clearActiveCall() {
         activeCall = nil
+        activeRawNonce = nil
+    }
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        var result = ""
+        var remainingLength = length
+
+        while remainingLength > 0 {
+            var randoms: [UInt8] = Array(repeating: 0, count: 16)
+            let errorCode = SecRandomCopyBytes(kSecRandomDefault, randoms.count, &randoms)
+            if errorCode != errSecSuccess {
+                fatalError("Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)")
+            }
+
+            randoms.forEach { random in
+                if remainingLength == 0 {
+                    return
+                }
+
+                if random < charset.count {
+                    result.append(charset[Int(random)])
+                    remainingLength -= 1
+                }
+            }
+        }
+
+        return result
+    }
+
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        return hashedData.map { String(format: "%02x", $0) }.joined()
     }
 }
 
@@ -57,12 +97,26 @@ extension SignInWithApplePlugin: ASAuthorizationControllerDelegate {
             return
         }
 
+        guard let rawNonce = activeRawNonce else {
+            activeCall?.reject("未获取到 rawNonce。", "missing_raw_nonce")
+            clearActiveCall()
+            return
+        }
+
         var payload: [String: Any] = [
-            "identityToken": identityToken
+            "identityToken": identityToken,
+            "rawNonce": rawNonce
         ]
 
         if let email = appleCredential.email {
             payload["email"] = email
+        }
+
+        if let fullName = appleCredential.fullName {
+            let name = PersonNameComponentsFormatter().string(from: fullName).trimmingCharacters(in: .whitespacesAndNewlines)
+            if !name.isEmpty {
+                payload["fullName"] = name
+            }
         }
 
         activeCall?.resolve(payload)

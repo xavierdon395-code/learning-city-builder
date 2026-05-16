@@ -148,6 +148,23 @@
     );
   }
 
+  function friendlyAppleAuthError(err) {
+    var code = err && err.code ? String(err.code).toLowerCase() : "";
+    if (code.indexOf("invalid-credential") >= 0) {
+      return "Apple 登录凭证无效，请重新尝试授权登录。";
+    }
+    if (code.indexOf("missing-or-invalid-nonce") >= 0 || code.indexOf("invalid_nonce") >= 0) {
+      return "Apple 登录安全校验失败（nonce 无效），请重试。";
+    }
+    if (code.indexOf("account-exists-with-different-credential") >= 0) {
+      return "该邮箱已绑定其他登录方式，请使用原方式登录后再处理账号绑定。";
+    }
+    if (code.indexOf("network-request-failed") >= 0) {
+      return "网络连接失败：请检查手机网络/VPN，稍后再试。";
+    }
+    return (err && err.message) || "Apple 登录失败，请稍后重试。";
+  }
+
   function onAppleLogin() {
     setMessage("");
     if (!isIOSNativeRuntime()) {
@@ -168,10 +185,36 @@
       .signIn({})
       .then(function (nativeResult) {
         const identityToken = nativeResult && (nativeResult.identityToken || nativeResult.idToken);
+        const rawNonce = nativeResult && nativeResult.rawNonce;
         if (!identityToken) {
           throw new Error("未收到 identityToken");
         }
-        setMessage("Apple 授权成功，已收到 identityToken", "success");
+        if (!rawNonce) {
+          throw new Error("未收到 rawNonce");
+        }
+
+        const firebaseContext = initFirebase();
+        const auth = firebaseContext.auth;
+        const provider = new firebase.auth.OAuthProvider("apple.com");
+        const credential = provider.credential({
+          idToken: identityToken,
+          rawNonce: rawNonce,
+        });
+
+        setMessage("Apple 授权成功，正在登录…", "info");
+        return auth.signInWithCredential(credential);
+      })
+      .then(function (userCredential) {
+        return syncUserToRealtimeDatabase(userCredential.user).then(function () {
+          return userCredential;
+        });
+      })
+      .then(function () {
+        setMessage("登录成功，正在进入应用…", "success");
+        showRouteLoading("登录成功，正在进入 Lumi…");
+        setTimeout(function () {
+          window.location.href = "app/index.html";
+        }, 250);
       })
       .catch(function (err) {
         console.error(err);
@@ -179,7 +222,7 @@
           setMessage("已取消登录", "info");
           return;
         }
-        setMessage("Apple 原生插件未就绪", "error");
+        setMessage(friendlyAppleAuthError(err), "error");
       })
       .finally(function () {
         setAppleLoading(false);
