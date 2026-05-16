@@ -60,10 +60,30 @@
     </main>
 
     <nav class="bottom-nav" aria-label="主导航">
-      <a href="index.html" data-nav="home"><span class="emoji">🏠</span>首页</a>
-      <a href="goals.html" data-nav="goals"><span class="emoji">🎯</span>目标</a>
-      <a href="city.html" data-nav="achievements"><span class="emoji">🏆</span>成就</a>
-      <a href="stats.html" data-nav="stats"><span class="emoji">📊</span>统计</a>
+      <a href="index.html" data-nav="home">
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5" /><path d="M5.5 9.5V21h13V9.5" /><path d="M9.5 21v-6h5v6" /></svg>
+        </span>
+        <span class="nav-label">首页</span>
+      </a>
+      <a href="goals.html" data-nav="goals" aria-current="page">
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4.2" /><path d="M12 3v2M12 19v2M3 12h2M19 12h2" /></svg>
+        </span>
+        <span class="nav-label">目标</span>
+      </a>
+      <a href="city.html" data-nav="achievements">
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v4a5 5 0 0 1-10 0V4Z" /><path d="M5 6H3a2 2 0 0 0 2 3m14-3h2a2 2 0 0 1-2 3" /><path d="M12 13v4M9 21h6" /></svg>
+        </span>
+        <span class="nav-label">成就</span>
+      </a>
+      <a href="stats.html" data-nav="stats">
+        <span class="nav-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><rect x="6" y="11" width="3" height="7" rx="1" /><rect x="11" y="7" width="3" height="11" rx="1" /><rect x="16" y="4" width="3" height="14" rx="1" /></svg>
+        </span>
+        <span class="nav-label">统计</span>
+      </a>
     </nav>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
