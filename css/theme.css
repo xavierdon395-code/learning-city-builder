@@ -2080,6 +2080,43 @@ body.app-body--nav-56 {
   margin-top: 12px;
 }
 
+.ach-wall-status {
+  margin: 2px 4px 12px;
+  min-height: 1.4em;
+}
+
+.ach-wall-skeleton {
+  margin-bottom: 12px;
+}
+
+.ach-skeleton-title,
+.ach-skeleton-sub,
+.ach-card--skeleton {
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  background-size: 200% 100%;
+  animation: ach-skeleton-shimmer 1.2s linear infinite;
+}
+
+.ach-skeleton-title {
+  width: 40%;
+  min-width: 120px;
+  height: 14px;
+  margin-bottom: 10px;
+}
+
+.ach-skeleton-sub {
+  width: 62%;
+  min-width: 160px;
+  height: 12px;
+  margin-bottom: 12px;
+}
+
+.ach-card--skeleton {
+  min-height: 96px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .ach-card {
   border-radius: var(--radius-ig);
   border: var(--border-glass);
@@ -2093,6 +2130,15 @@ body.app-body--nav-56 {
   position: relative;
   overflow: hidden;
   transition: border-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+
+@keyframes ach-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .ach-card::after {

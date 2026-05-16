@@ -84,6 +84,7 @@
     spec_collector_40: "crown",
     spec_all_50: "telescope",
   };
+  var ACH_ICON_SVG_CACHE = Object.create(null);
 
   function toPascalCase(iconName) {
     return String(iconName || "")
@@ -116,12 +117,16 @@
   }
 
   function lucideIconSvg(iconName) {
+    if (!iconName) return "";
+    if (ACH_ICON_SVG_CACHE[iconName]) return ACH_ICON_SVG_CACHE[iconName];
     var Icon = findLucideIcon(iconName);
     if (!Icon) return "";
 
     // lucide@latest UMD 中 icons[name] 是 iconNode 数组，不一定提供 toSvg。
     if (typeof Icon.toSvg === "function") {
-      return Icon.toSvg({ "stroke-width": 1.5 });
+      var direct = Icon.toSvg({ "stroke-width": 1.5 });
+      if (direct) ACH_ICON_SVG_CACHE[iconName] = direct;
+      return direct || "";
     }
     if (!Array.isArray(Icon)) return "";
 
@@ -158,7 +163,9 @@
       }
       children += "<" + tag + (nodeParts.length ? " " + nodeParts.join(" ") : "") + "></" + tag + ">";
     }
-    return "<svg " + parts.join(" ") + ">" + children + "</svg>";
+    var built = "<svg " + parts.join(" ") + ">" + children + "</svg>";
+    if (built) ACH_ICON_SVG_CACHE[iconName] = built;
+    return built;
   }
 
   function renderAchievementIcon(achievement) {
@@ -1110,6 +1117,34 @@
     });
   }
 
+  function scheduleIdleTask(task) {
+    if (typeof task !== "function") return;
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(
+        function () {
+          task();
+        },
+        { timeout: 320 }
+      );
+      return;
+    }
+    window.setTimeout(task, 32);
+  }
+
+  function setWallLoadingState(message) {
+    var status = document.getElementById("ach-wall-status");
+    var skeleton = document.getElementById("ach-wall-skeleton");
+    if (status) status.textContent = message || "星图加载中…";
+    if (skeleton) skeleton.hidden = false;
+  }
+
+  function setWallReadyState(message) {
+    var status = document.getElementById("ach-wall-status");
+    var skeleton = document.getElementById("ach-wall-skeleton");
+    if (skeleton) skeleton.hidden = true;
+    if (status) status.textContent = message || "";
+  }
+
   function renderWall(uid) {
     return Promise.all([
       loadUnlocked(uid),
@@ -1164,9 +1199,7 @@
         if (bySeries[d.series]) bySeries[d.series].push(d);
       });
 
-      SERIES_ORDER.forEach(function (series) {
-        var list = bySeries[series];
-        if (!list || !list.length) return;
+      function buildSeriesSection(series, list) {
         var sec = document.createElement("section");
         sec.className = "ach-series card";
         var h = document.createElement("h2");
@@ -1222,7 +1255,30 @@
           grid.appendChild(card);
         });
         sec.appendChild(grid);
-        host.appendChild(sec);
+        return sec;
+      }
+
+      var entries = SERIES_ORDER.filter(function (series) {
+        var list = bySeries[series];
+        return !!(list && list.length);
+      });
+      var idx = 0;
+      return new Promise(function (resolve) {
+        function paintChunk() {
+          var start = Date.now();
+          while (idx < entries.length && Date.now() - start < 12) {
+            var series = entries[idx];
+            var sec = buildSeriesSection(series, bySeries[series]);
+            host.appendChild(sec);
+            idx += 1;
+          }
+          if (idx < entries.length) {
+            window.requestAnimationFrame(paintChunk);
+            return;
+          }
+          resolve();
+        }
+        paintChunk();
       });
     });
   }
@@ -1230,19 +1286,23 @@
   function renderWallWhenIconReady(uid) {
     return new Promise(function (resolve) {
       waitForLucide(function () {
-        Promise.resolve(renderWall(uid)).then(resolve, resolve);
+        scheduleIdleTask(function () {
+          Promise.resolve(renderWall(uid)).then(resolve, resolve);
+        });
       });
     });
   }
 
   function initWallPage(uid) {
     var rootId = "ach-celebrate";
+    setWallLoadingState("星图加载中…");
     AppData.loadProfile(uid)
       .then(function (profile) {
         if (profile && profile.devPauseAchCheck) {
           return renderWallWhenIconReady(uid).then(function () {
             var recent = document.getElementById("ach-stat-recent");
             if (recent) recent.textContent = "最近：开发者模式已暂停自动检测（请在 DEV 面板手动重检）";
+            setWallReadyState("星图已加载（开发者模式）");
           });
         }
         return checkAchievements(uid)
@@ -1257,10 +1317,14 @@
           })
           .then(function () {
             return renderWallWhenIconReady(uid);
+          })
+          .then(function () {
+            setWallReadyState("");
           });
       })
       .catch(function (e) {
         console.error(e);
+        setWallReadyState("星图加载失败，请稍后重试");
       });
   }
 
