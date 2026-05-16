@@ -2916,3 +2916,113 @@ body.login-page {
   background: rgba(201, 168, 76, 0.15);
   color: #c9a84c;
 }
+
+
+/* === Lumi conservative iOS fix 2026-05-16 === */
+
+/* 只隐藏 emoji 后备图标，不再额外生成伪图标，避免双层图标 */
+.bottom-nav .emoji {
+  display: none !important;
+}
+
+/* 顶部只做安全区避让，不强制 fixed/sticky，不影响页面自然滚动 */
+.app-top-bar,
+.top-nav,
+.pixel-header,
+.page-header {
+  padding-top: env(safe-area-inset-top) !important;
+}
+
+/* 去掉开发者悬浮面板 */
+#dev-panel,
+.dev-panel,
+.dev-toggle,
+.dev-panel-toggle,
+.dev-button,
+button[id*="dev"],
+[class*="dev-panel"] {
+  display: none !important;
+}
+
+/* create-goal 左上角旧图标隐藏，但不隐藏头像/通用按钮 */
+.pixel-logo,
+.brand-logo,
+.brand-icon,
+.brand-mark {
+  display: none !important;
+}
+
+/* 背景固定即可，避免白色露底 */
+html,
+body {
+  background: #050507 !important;
+}
+
+.cosmos-bg {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  pointer-events: none !important;
+}
+
+/* 确保主要按钮和链接在背景之上可点 */
+a,
+button,
+.btn,
+.goal-card,
+.bottom-nav,
+.app-top-bar,
+.top-nav {
+  pointer-events: auto;
+}
+
+
+/* === Lumi header/delete fix 2026-05-16 === */
+
+/* 硬避开 iPhone 状态栏：用于首页/目标/成就/创建页 */
+.app-top-bar,
+.top-nav {
+  padding-top: 52px !important;
+  box-sizing: border-box !important;
+  min-height: 96px !important;
+}
+
+/* 让主内容不要被顶部栏压住 */
+.app-main,
+main.app-main {
+  padding-top: 12px !important;
+}
+
+/* create-goal 旧图标兜底隐藏 */
+.logo-pixel,
+.nav-zodiac {
+  display: none !important;
+}
+
+/* 垃圾桶按钮重新显示在卡片右上角 */
+.goal-card {
+  position: relative !important;
+  padding-right: 58px !important;
+}
+
+.goal-card__delete {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  visibility: visible !important;
+  opacity: 0.85 !important;
+  pointer-events: auto !important;
+  position: absolute !important;
+  top: 18px !important;
+  right: 18px !important;
+  z-index: 20 !important;
+  width: 34px !important;
+  height: 34px !important;
+}
+
+/* 删除确认弹窗居中兜底 */
+.cosmos-dialog,
+.cosmos-dialog__panel {
+  max-height: 80vh !important;
+}

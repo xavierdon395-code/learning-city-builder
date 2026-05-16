@@ -85,7 +85,7 @@
       aside.className = "goal-card__aside" + (urgent ? " goal-card__aside--urgent" : "");
     }
 
-    if (hooks.onDeleteRequest && incomplete) {
+    if (hooks.onDeleteRequest) {
       var del = document.createElement("button");
       del.type = "button";
       del.className = "goal-card__delete";
