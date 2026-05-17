@@ -44,3 +44,4 @@ fonts/*.otf
 # Apple 凭证（私钥,严禁上传）
 apple-keys/
 *.p8
+appstore-screenshots/
