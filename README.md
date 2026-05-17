@@ -1,4 +1,4 @@
-# 学习城市建设者 ✨
+# Lumi Goals ✨
 
 > AI-powered learning planner with constellation-themed achievements
 
