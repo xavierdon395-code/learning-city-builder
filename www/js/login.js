@@ -18,6 +18,8 @@
     emailSubmit: document.getElementById("email-submit"),
     emailModeToggle: document.getElementById("email-mode-toggle"),
     fieldConfirm: document.getElementById("field-confirm"),
+    forgotPasswordWrap: document.getElementById("login-forgot-wrap"),
+    forgotPassword: document.getElementById("forgot-password"),
     appleLoginWrap: document.getElementById("apple-login-wrap"),
     appleLogin: document.getElementById("apple-login"),
     appleLoginLabel: document.getElementById("apple-login-label"),
@@ -38,25 +40,75 @@
 
   function friendlyAuthError(err) {
     var code = err && err.code ? String(err.code) : "";
+    if (code.indexOf("email-already-in-use") >= 0) {
+      return "该邮箱已注册，请直接登录。";
+    }
     if (code.indexOf("network-request-failed") >= 0) {
       return "网络连接失败：请检查手机网络/VPN，稍后再试。";
     }
     if (code.indexOf("invalid-credential") >= 0 || code.indexOf("wrong-password") >= 0) {
-      return "邮箱或密码不正确，请检查后重试。";
+      return "邮箱或密码不正确。";
     }
     if (code.indexOf("user-not-found") >= 0) {
-      return "这个邮箱还没有注册，请先点击“没有账号？注册”。";
+      return "该邮箱尚未注册，请先注册。";
     }
     if (code.indexOf("too-many-requests") >= 0) {
-      return "尝试次数过多，请稍后再试。";
+      return "请求过于频繁，请稍后再试。";
     }
     if (code.indexOf("invalid-email") >= 0) {
       return "邮箱格式不正确。";
     }
+    if (code.indexOf("invalid-phone-number") >= 0) {
+      return "手机号格式不正确。";
+    }
+    if (code.indexOf("invalid-verification-code") >= 0) {
+      return "验证码不正确，请重新输入。";
+    }
     if (code.indexOf("weak-password") >= 0) {
       return "密码强度太低，请至少设置 6 位。";
     }
-    return (err && err.message) || "登录失败，请稍后重试。";
+    return "登录失败，请稍后重试。";
+  }
+
+  function friendlyPasswordResetError(err) {
+    var code = err && err.code ? String(err.code) : "";
+    if (code.indexOf("user-not-found") >= 0) {
+      return "该邮箱尚未注册";
+    }
+    if (code.indexOf("invalid-email") >= 0) {
+      return "邮箱格式不正确";
+    }
+    if (code.indexOf("too-many-requests") >= 0) {
+      return "请求过于频繁，请稍后再试";
+    }
+    if (code.indexOf("network-request-failed") >= 0) {
+      return "网络连接失败，请检查网络/VPN";
+    }
+    return "密码重置邮件发送失败，请稍后再试";
+  }
+
+  function waitAuthPersistenceReady(auth) {
+    if (!auth || !firebase || !firebase.auth || !firebase.auth.Auth || !firebase.auth.Auth.Persistence) {
+      return Promise.resolve();
+    }
+    return auth
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch(function (error) {
+        console.warn("[auth] set LOCAL persistence failed:", error);
+      });
+  }
+
+  function trySendEmailVerification(user) {
+    if (!user || typeof user.sendEmailVerification !== "function") return Promise.resolve(false);
+    return user
+      .sendEmailVerification()
+      .then(function () {
+        return true;
+      })
+      .catch(function (error) {
+        console.warn("[auth] send verify email failed:", error);
+        return false;
+      });
   }
 
   function setEmailLoading(isLoading, text) {
@@ -91,6 +143,74 @@
       '<div class="route-loading-text">' + (text || "正在进入 Lumi…") + '</div>' +
       '</div>';
     document.body.appendChild(mask);
+  }
+
+  function logAuthStateChanged(user) {
+    console.log(
+      "[auth] auth state changed:",
+      user ? "user" : "null",
+      user ? "uid=" + user.uid : ""
+    );
+  }
+
+  function logLoginUser(user) {
+    console.log("[auth] login success user.uid:", user && user.uid ? user.uid : "");
+    console.log("[auth] user.email:", user && user.email ? user.email : "");
+    console.log("[auth] user.emailVerified:", !!(user && user.emailVerified));
+  }
+
+  function waitForAuthUser(auth, timeoutMs) {
+    return new Promise(function (resolve, reject) {
+      var settled = false;
+      var timer = setTimeout(function () {
+        cleanup();
+        reject(new Error("等待认证状态超时，请稍后重试。"));
+      }, timeoutMs || 8000);
+      var unsubscribe = auth.onAuthStateChanged(
+        function (user) {
+          logAuthStateChanged(user);
+          if (!user) return;
+          cleanup();
+          resolve(user);
+        },
+        function (error) {
+          cleanup();
+          reject(error);
+        }
+      );
+
+      function cleanup() {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (typeof unsubscribe === "function") unsubscribe();
+      }
+    });
+  }
+
+  function completeLoginFlow(auth, userCredential, options) {
+    var user = userCredential && userCredential.user;
+    if (!user) {
+      return Promise.reject(new Error("登录成功但未拿到用户信息。"));
+    }
+
+    logLoginUser(user);
+    var showEmailTip = !!(options && options.showEmailVerifyTip);
+
+    return syncUserToRealtimeDatabase(user)
+      .then(function () {
+        if (showEmailTip && user.email && !user.emailVerified) {
+          setMessage("登录成功。建议完成邮箱验证，以便找回账号。", "info");
+        } else {
+          setMessage("登录成功，正在进入应用…", "success");
+        }
+        showRouteLoading("登录成功，正在进入 Lumi…");
+        return waitForAuthUser(auth, 10000);
+      })
+      .then(function (authUser) {
+        logLoginUser(authUser);
+        window.location.href = "app/index.html";
+      });
   }
 
   function getCapacitorRuntime() {
@@ -162,7 +282,7 @@
     if (code.indexOf("network-request-failed") >= 0) {
       return "网络连接失败：请检查手机网络/VPN，稍后再试。";
     }
-    return (err && err.message) || "Apple 登录失败，请稍后重试。";
+    return "Apple 登录失败，请稍后重试。";
   }
 
   function onAppleLogin() {
@@ -205,16 +325,9 @@
         return auth.signInWithCredential(credential);
       })
       .then(function (userCredential) {
-        return syncUserToRealtimeDatabase(userCredential.user).then(function () {
-          return userCredential;
+        return completeLoginFlow(initFirebase().auth, userCredential, {
+          showEmailVerifyTip: true,
         });
-      })
-      .then(function () {
-        setMessage("登录成功，正在进入应用…", "success");
-        showRouteLoading("登录成功，正在进入 Lumi…");
-        setTimeout(function () {
-          window.location.href = "app/index.html";
-        }, 250);
       })
       .catch(function (err) {
         console.error(err);
@@ -276,7 +389,7 @@
       })
       .catch(function (err) {
         console.error(err);
-        setMessage(err.message || "发送验证码失败，请检查 Firebase 手机号登录配置。", "error");
+        setMessage(friendlyAuthError(err), "error");
         try {
           if (recaptchaVerifier) recaptchaVerifier.reset();
         } catch (_) {}
@@ -301,20 +414,13 @@
     confirmationResult
       .confirm(code)
       .then(function (userCredential) {
-        return syncUserToRealtimeDatabase(userCredential.user).then(function () {
-          return userCredential;
+        return completeLoginFlow(initFirebase().auth, userCredential, {
+          showEmailVerifyTip: false,
         });
-      })
-      .then(function () {
-        setMessage("登录成功，正在进入应用…", "success");
-        showRouteLoading("登录成功，正在进入 Lumi…");
-        setTimeout(function () {
-          window.location.href = "app/index.html";
-        }, 250);
       })
       .catch(function (err) {
         console.error(err);
-        setMessage(err.message || "验证码错误。", "error");
+        setMessage(friendlyAuthError(err), "error");
       })
       .finally(function () {
         els.phoneLogin.disabled = false;
@@ -346,21 +452,25 @@
     setEmailLoading(true, emailIsRegister ? "正在注册…" : "正在登录…");
 
     const promise = emailIsRegister
-      ? auth.createUserWithEmailAndPassword(email, password)
+      ? auth
+          .createUserWithEmailAndPassword(email, password)
+          .then(function (userCredential) {
+            return trySendEmailVerification(userCredential && userCredential.user).then(function (sent) {
+              if (sent) {
+                setMessage("注册成功，验证邮件已发送。正在进入应用…", "info");
+              } else {
+                setMessage("注册成功。建议稍后在个人资料中完成邮箱验证。", "info");
+              }
+              return userCredential;
+            });
+          })
       : auth.signInWithEmailAndPassword(email, password);
 
     promise
       .then(function (userCredential) {
-        return syncUserToRealtimeDatabase(userCredential.user).then(function () {
-          return userCredential;
+        return completeLoginFlow(auth, userCredential, {
+          showEmailVerifyTip: true,
         });
-      })
-      .then(function () {
-        setMessage("登录成功，正在进入应用…", "success");
-        showRouteLoading("登录成功，正在进入 Lumi…");
-        setTimeout(function () {
-          window.location.href = "app/index.html";
-        }, 250);
       })
       .catch(function (err) {
         console.error(err);
@@ -371,9 +481,35 @@
       });
   }
 
+  function onForgotPassword() {
+    const email = (els.emailInput.value || "").trim();
+    if (!email) {
+      setMessage("请先输入邮箱地址", "error");
+      return;
+    }
+
+    const { auth } = initFirebase();
+    setMessage("正在发送密码重置邮件…", "info");
+    if (els.forgotPassword) els.forgotPassword.disabled = true;
+
+    auth
+      .sendPasswordResetEmail(email)
+      .then(function () {
+        setMessage("密码重置邮件已发送，请检查收件箱、垃圾邮件或推广邮件。", "success");
+      })
+      .catch(function (err) {
+        console.error(err);
+        setMessage(friendlyPasswordResetError(err), "error");
+      })
+      .finally(function () {
+        if (els.forgotPassword) els.forgotPassword.disabled = false;
+      });
+  }
+
   function toggleEmailMode() {
     emailIsRegister = !emailIsRegister;
     els.fieldConfirm.hidden = !emailIsRegister;
+    if (els.forgotPasswordWrap) els.forgotPasswordWrap.hidden = emailIsRegister;
     els.passwordConfirm.value = "";
     els.emailModeToggle.textContent = emailIsRegister
       ? "已有账号？去登录"
@@ -382,9 +518,41 @@
     setMessage("");
   }
 
+  function restoreSessionAndMaybeRedirect(auth) {
+    return new Promise(function (resolve) {
+      var settled = false;
+      var unsubscribe = auth.onAuthStateChanged(
+        function (user) {
+          if (settled) return;
+          settled = true;
+          unsubscribe();
+          resolve(user || null);
+        },
+        function () {
+          if (settled) return;
+          settled = true;
+          unsubscribe();
+          resolve(auth.currentUser || null);
+        }
+      );
+    }).then(function (user) {
+      if (!user) return;
+      setMessage("已恢复登录状态，正在进入应用…", "info");
+      showRouteLoading("欢迎回来，正在进入 Lumi…");
+      window.location.href = "app/index.html";
+    });
+  }
+
   function init() {
     showTab("email"); // force default email login
-    initFirebase();
+    const firebaseContext = initFirebase();
+    waitAuthPersistenceReady(firebaseContext.auth)
+      .then(function () {
+        return restoreSessionAndMaybeRedirect(firebaseContext.auth);
+      })
+      .catch(function (error) {
+        console.warn("[auth] restore session failed:", error);
+      });
     setAppleVisibility(true);
 
     if (els.tabPhone) els.tabPhone.addEventListener("click", function () {
@@ -397,6 +565,7 @@
     if (els.sendCode) els.sendCode.addEventListener("click", onSendCode);
     if (els.phoneLogin) els.phoneLogin.addEventListener("click", onPhoneLogin);
     if (els.emailSubmit) els.emailSubmit.addEventListener("click", onEmailSubmit);
+    if (els.forgotPassword) els.forgotPassword.addEventListener("click", onForgotPassword);
     if (els.appleLogin) els.appleLogin.addEventListener("click", onAppleLogin);
     if (els.emailModeToggle) els.emailModeToggle.addEventListener("click", toggleEmailMode);
   }

@@ -98,7 +98,7 @@ body {
 .task-constellation,
 .zodiac-orbit,
 .ach-wall-skeleton {
-  max-width: 100vw;
+  max-width: 100%;
   pointer-events: none;
 }
 
@@ -395,6 +395,7 @@ body.app-body--nav-56 {
 .app-main,
 .login-shell,
 main {
+  width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
@@ -433,10 +434,6 @@ main {
   box-shadow: var(--shadow-card), 0 0 40px rgba(212, 145, 118, 0.06), inset 0 1px 0 rgba(255, 248, 235, 0.05);
   position: relative;
   overflow: hidden;
-}
-
-.card--today-constellation.card--ig-hero {
-  overflow: visible;
 }
 
 .card--sky::before,
@@ -2568,6 +2565,9 @@ body.login-page {
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --duration-fast: 150ms;
   --duration-base: 200ms;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -2584,8 +2584,12 @@ body.login-page {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   padding: 24px 16px 12px;
   position: relative;
+  box-sizing: border-box;
 }
 
 .login-brand {
@@ -2884,8 +2888,8 @@ body.login-page {
 
 .ig-hero-deco {
   position: absolute;
-  top: -12px;
-  right: -16px;
+  top: 0;
+  right: 0;
   width: min(210px, 52vw);
   height: min(210px, 52vw);
   pointer-events: none;
@@ -2927,7 +2931,7 @@ body.login-page {
 /* —— 成就页 · 殿堂 hero 暖光 + 星座氛围 —— */
 .ach-page .card--ach-hero {
   position: relative;
-  overflow: visible;
+  overflow: hidden;
   padding: 26px 22px 30px;
 }
 
@@ -2937,7 +2941,7 @@ body.login-page {
   width: 280px;
   height: 280px;
   top: -100px;
-  right: -80px;
+  right: 0;
   pointer-events: none;
   background: radial-gradient(circle, rgba(212, 145, 118, 0.14) 0%, rgba(224, 181, 101, 0.05) 40%, transparent 68%);
   z-index: 0;
@@ -3013,8 +3017,8 @@ body.login-page {
   .ig-hero-deco {
     width: min(170px, 46vw);
     height: min(170px, 46vw);
-    top: -4px;
-    right: -8px;
+    top: 0;
+    right: 0;
   }
 
   .zodiac-map__canvas-wrap {
@@ -3171,7 +3175,8 @@ body {
 .cosmos-bg {
   position: fixed !important;
   inset: 0 !important;
-  width: 100vw !important;
+  width: 100% !important;
+  max-width: 100% !important;
   height: 100dvh !important;
   pointer-events: none !important;
 }
@@ -3366,7 +3371,8 @@ body > .bottom-nav,
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
-  width: 100vw !important;
+  width: 100% !important;
+  max-width: 100% !important;
   height: var(--bottom-nav-total-h) !important;
   padding-bottom: var(--bottom-nav-safe) !important;
   z-index: 9999 !important;
@@ -3380,4 +3386,36 @@ body {
 .app-main,
 main {
   padding-bottom: calc(var(--bottom-nav-total-h) + 32px) !important;
+}
+
+
+/* === iOS 横向滚动防护 2026-05-30 === */
+
+body.login-page,
+body.app-body,
+body.app-body--nav-56,
+body.stats-page,
+body.ach-page,
+body.city-page {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.login-wrap,
+.login-panel,
+.auth-section,
+.app-top-bar,
+.top-nav {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.card--today-constellation.card--ig-hero {
+  overflow: hidden;
+}
+
+.card--today-constellation.card--ig-hero .ig-hero-deco {
+  max-width: 100%;
 }

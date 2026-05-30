@@ -13,13 +13,31 @@ const FIREBASE_CONFIG = {
   measurementId: "G-SHLK2SVBBW",
 };
 
+let authPersistencePromise = null;
+
+function ensureAuthLocalPersistence(authInstance) {
+  if (!authInstance || !firebase || !firebase.auth || !firebase.auth.Auth || !firebase.auth.Auth.Persistence) {
+    return Promise.resolve();
+  }
+  if (authPersistencePromise) return authPersistencePromise;
+  authPersistencePromise = authInstance
+    .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .catch(function (error) {
+      console.warn("[auth] set LOCAL persistence failed:", error);
+    });
+  return authPersistencePromise;
+}
+
 function initFirebase() {
   if (!firebase.apps.length) {
     firebase.initializeApp(FIREBASE_CONFIG);
   }
-  
+
+  var auth = firebase.auth();
+  ensureAuthLocalPersistence(auth);
+
   return {
-    auth: firebase.auth(),
+    auth: auth,
     db: firebase.database(),
   };
 }

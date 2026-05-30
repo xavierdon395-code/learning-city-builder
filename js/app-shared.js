@@ -67,16 +67,84 @@
     return s[0];
   }
 
+  function logAuthState(user) {
+    console.log(
+      "[auth] auth state changed:",
+      user ? "user" : "null",
+      user ? "uid=" + user.uid : ""
+    );
+  }
+
+  function redirectToLogin(reason) {
+    console.warn("[auth] redirect to login:", reason);
+    window.location.href = "../index.html";
+  }
+
+  function waitForFirstAuthState(auth, timeoutMs) {
+    return new Promise(function (resolve) {
+      var settled = false;
+      var timer = setTimeout(function () {
+        if (settled) return;
+        settled = true;
+        resolve(auth.currentUser || null);
+      }, timeoutMs || 10000);
+      var unsubscribe = auth.onAuthStateChanged(
+        function (user) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          unsubscribe();
+          resolve(user || null);
+        },
+        function () {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          unsubscribe();
+          resolve(auth.currentUser || null);
+        }
+      );
+    });
+  }
+
   function requireAuth(onUser) {
-    initFirebase();
     const { auth } = initFirebase();
+    let hasInit = false;
+    let hasEntered = false;
+    waitForFirstAuthState(auth, 12000)
+      .then(function (restoredUser) {
+        var user = restoredUser || auth.currentUser;
+        logAuthState(user);
+        if (!user) {
+          redirectToLogin("user is null");
+          return;
+        }
+        hasInit = true;
+        initTopBar(user);
+        hasEntered = true;
+        onUser(user);
+      })
+      .catch(function (err) {
+        console.error("[auth] wait first auth state failed:", err);
+        if (auth.currentUser) {
+          hasInit = true;
+          hasEntered = true;
+          initTopBar(auth.currentUser);
+          onUser(auth.currentUser);
+          return;
+        }
+        redirectToLogin("user is null");
+      });
+
     auth.onAuthStateChanged(function (user) {
+      if (!hasInit) return;
+      logAuthState(user);
       if (!user) {
-        window.location.href = "../index.html";
+        if (!hasEntered) return;
+        redirectToLogin("user is null");
         return;
       }
       initTopBar(user);
-      onUser(user);
     });
   }
 

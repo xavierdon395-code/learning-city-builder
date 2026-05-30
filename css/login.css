@@ -1,1 +1,56 @@
 @import "./theme.css";
+
+/* iOS 登录页横向滚动防护 */
+html,
+body {
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+}
+
+.auth-page,
+.auth-shell,
+.auth-card,
+.login-page,
+.login-wrap,
+.login-panel,
+.login-shell,
+form {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.login-wrap,
+.login-panel {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.login-forgot-wrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -2px;
+  margin-bottom: 10px;
+}
+
+.login-forgot-wrap[hidden] {
+  display: none;
+}
+
+.login-forgot {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.login-forgot:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.login-forgot:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
